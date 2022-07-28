@@ -2,8 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>/posts/golang/go_type_system/</loc>
+    <lastmod>2022-07-28T10:30:06+08:00</lastmod>
+  </url><url>
     <loc>/authors/</loc>
-    <lastmod>2021-03-31T13:11:22+08:00</lastmod>
+    <lastmod>2022-07-28T10:30:06+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -15,17 +18,11 @@
                 href="/authors/"
                 />
   </url><url>
-    <loc>/posts/diagram-support/</loc>
-    <lastmod>2021-03-31T13:11:22+08:00</lastmod>
-  </url><url>
-    <loc>/authors/example-author/</loc>
-    <lastmod>2021-03-31T13:11:22+08:00</lastmod>
-  </url><url>
     <loc>/posts/</loc>
-    <lastmod>2021-03-31T13:11:22+08:00</lastmod>
+    <lastmod>2022-07-28T10:30:06+08:00</lastmod>
   </url><url>
     <loc>/</loc>
-    <lastmod>2021-03-31T13:11:22+08:00</lastmod>
+    <lastmod>2022-07-28T10:30:06+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -36,6 +33,15 @@
                 hreflang="zh"
                 href="/"
                 />
+  </url><url>
+    <loc>/authors/tomcn0803/</loc>
+    <lastmod>2022-07-28T10:30:06+08:00</lastmod>
+  </url><url>
+    <loc>/posts/diagram-support/</loc>
+    <lastmod>2021-03-31T13:11:22+08:00</lastmod>
+  </url><url>
+    <loc>/authors/example-author/</loc>
+    <lastmod>2021-03-31T13:11:22+08:00</lastmod>
   </url><url>
     <loc>/posts/math-support/</loc>
     <lastmod>2020-11-20T22:52:56+08:00</lastmod>
@@ -144,7 +150,5 @@
   </url><url>
     <loc>/posts/emoji-support/</loc>
     <lastmod>2019-03-05T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/authors/tomcn0803/</loc>
   </url>
 </urlset>

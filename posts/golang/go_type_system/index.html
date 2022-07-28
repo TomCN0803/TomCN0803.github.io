@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-<title>Diagram Support | Tom&#39;s Blog</title>
+<title>「Go系列」浅探一下Go语言的类型系统 | Tom&#39;s Blog</title>
 
 <meta name="generator" content="Hugo Eureka 0.9.3" />
 <link rel="stylesheet" href="/css/eureka.min.9cec6350e37e534b0338fa9a085bf06855de3b0f2dcf857e792e5e97b07ea905d4d5513db554cbc26a9c3da622bae92d.css">
@@ -75,7 +75,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/images/icon_hu64421c6c7700f606f0ad45d807017b09_5843_180x180_fill_box_center_3.png">
 
 <meta name="description"
-  content="Eureka supports the rendering of diagrams by using Mermaid.">
+  content="Go语言是强类型语言，编译器在编译阶段会给代码中每一种类型生成对应的类型描述信息并写入到二进制可执行文件中，这些类型描述信息就被称为“类型元数据”。 G">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -87,8 +87,8 @@
       "item":"/posts/"},{
       "@type": "ListItem",
       "position": 2 ,
-      "name":"Diagram Support",
-      "item":"/posts/diagram-support/"}]
+      "name":"「Go系列」浅探一下Go语言的类型系统",
+      "item":"/posts/golang/go_type_system/"}]
 }
 </script>
 
@@ -100,14 +100,14 @@
     "@type": "Article",
     "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": "/posts/diagram-support/"
+        "@id": "/posts/golang/go_type_system/"
     },
-    "headline": "Diagram Support | Tom\u0027s Blog","datePublished": "2021-03-31T13:11:22+08:00",
-    "dateModified": "2021-03-31T13:11:22+08:00",
-    "wordCount":  80 ,
+    "headline": "「Go系列」浅探一下Go语言的类型系统 | Tom\u0027s Blog","datePublished": "2022-07-28T10:30:06+08:00",
+    "dateModified": "2022-07-28T10:30:06+08:00",
+    "wordCount":  1797 ,
     "author": {
         "@type": "Person",
-        "name": ["example-author"]
+        "name": ["TomCN0803"]
     },
     "publisher": {
         "@type": "Person",
@@ -117,21 +117,21 @@
             "url": "/images/icon.png"
         }
         },
-    "description": "\u003cp\u003eEureka supports the rendering of diagrams by using Mermaid.\u003c\/p\u003e"
+    "description": "Go语言是强类型语言，编译器在编译阶段会给代码中每一种类型生成对应的类型描述信息并写入到二进制可执行文件中，这些类型描述信息就被称为“类型元数据”。 G"
 }
-</script><meta property="og:title" content="Diagram Support | Tom&#39;s Blog" />
+</script><meta property="og:title" content="「Go系列」浅探一下Go语言的类型系统 | Tom&#39;s Blog" />
 <meta property="og:type" content="article" />
 
 
 <meta property="og:image" content="/images/icon.png">
 
 
-<meta property="og:url" content="/posts/diagram-support/" />
+<meta property="og:url" content="/posts/golang/go_type_system/" />
 
 
 
 
-<meta property="og:description" content="Eureka supports the rendering of diagrams by using Mermaid." />
+<meta property="og:description" content="Go语言是强类型语言，编译器在编译阶段会给代码中每一种类型生成对应的类型描述信息并写入到二进制可执行文件中，这些类型描述信息就被称为“类型元数据”。 G" />
 
 
 
@@ -148,10 +148,10 @@
 
 
 
-<meta property="article:published_time" content="2021-03-31T13:11:22&#43;08:00" />
+<meta property="article:published_time" content="2022-07-28T10:30:06&#43;08:00" />
 
 
-<meta property="article:modified_time" content="2021-03-31T13:11:22&#43;08:00" />
+<meta property="article:modified_time" content="2022-07-28T10:30:06&#43;08:00" />
 
 
 
@@ -240,7 +240,7 @@
       class="lg:col-start-2 bg-secondary-bg col-span-2 rounded px-6 py-8 lg:col-span-6"
     >
       <article class="prose">
-  <h1 class="mb-4">Diagram Support</h1>
+  <h1 class="mb-4">「Go系列」浅探一下Go语言的类型系统</h1>
 
   <div
   class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
@@ -248,12 +248,12 @@
   <div class="me-6 my-2">
     <i class="fas fa-calendar me-1"></i>
     <span
-      >2021-03-31</span
+      >2022-07-28</span
     >
   </div>
   <div class="me-6 my-2">
     <i class="fas fa-clock me-1"></i>
-    <span>1分钟阅读时长</span>
+    <span>4分钟阅读时长</span>
   </div>
 
   
@@ -265,23 +265,126 @@
   
   
 
-  <p>Eureka supports the rendering of diagrams by using Mermaid.</p>
-<p>Please include the Mermaid diagram as below. Every mermaid chart/graph/diagram definition, has to have separate <code>&lt;div&gt;</code> tags.</p>
-<p>In order to render the HTML code in the Markdown file correctly, please make sure that <code>markup.goldmark.renderer.unsafe</code> in <code>config.yaml</code> is true.</p>
-<p>Here is one mermaid diagram:</p>
-<div class="mermaid">
-  graph TD
-  A[Client] --> B[Load Balancer]
-  B --> C[Server1]
-  B --> D[Server2]
-</div>
-<p>And here is another:</p>
-<div class="mermaid">
-  graph TD
-  A[Client] -->|tcp_123| B(Load Balancer)
-  B -->|tcp_456| C[Server1]
-  B -->|tcp_456| D[Server2]
-</div>
+  <p>Go语言是强类型语言，编译器在编译阶段会给代码中每一种类型生成对应的类型描述信息并写入到二进制可执行文件中，这些类型描述信息就被称为“<strong>类型元数据</strong>”。</p>
+<p>Go语言的类型分为<strong>内置类型</strong>和<strong>自定义类型</strong>。</p>
+<blockquote>
+<p>Go语言的内置类型：</p>
+<p>bool int int8 int16 int32 int64 uint uint8 uint16 uint32 uint64 uintptr float32 float64 complex64 complex128 string slice map channel rune(int32) byte(uint8)</p>
+</blockquote>
+<p>通过以下3种类型进行定义的都是自定义类型（这里插一句，Go中内置类型是不能被赋予自定义方法的，同样下面<code>T3</code>是自定义interface，也不能作为方法接收者，只有<code>T1</code>和<code>T2</code>可以被赋予自定义方法）：</p>
+<pre><code class="language-go">type T1 int
+
+type T2 struct {
+    name string
+}
+
+type T3 interface {
+    F() string
+}
+</code></pre>
+<p>数据类型虽然很多，但是不管是内置类型还是自定义类型，它各自对应的的类型元数据是全局唯一的，这些类型元数据共同构成了Go语言的类型系统。接下来就把类型元数据进行展开，浅探究一下里面都有些什么结构，什么内容。</p>
+<h2 id="内置类型元数据">内置类型元数据</h2>
+<p>其实不管是内置类型还是自定义类型，它们都需要记录类型名称、类型大小、内存对齐边界、是否为自定义数据类型等信息，这些信息是内置类型和自定义类型公用的，所以它们被放到了<a href="https://github.com/golang/go/blob/master/src/runtime/type.go">runtime._type</a>结构体中，作为每个类型元数据的Header：</p>
+<pre><code class="language-go">type _type struct {
+	size       uintptr
+	ptrdata    uintptr // size of memory prefix holding all pointers
+	hash       uint32
+	tflag      tflag
+	align      uint8
+	fieldAlign uint8
+	kind       uint8
+	// function for comparing objects of this type
+	// (ptr to object A, ptr to object B) -&gt; ==?
+	equal func(unsafe.Pointer, unsafe.Pointer) bool
+	// gcdata stores the GC type data for the garbage collector.
+	// If the KindGCProg bit is set in kind, gcdata is a GC program.
+	// Otherwise it is a ptrmask bitmap. See mbitmap.go for details.
+	gcdata    *byte
+	str       nameOff
+	ptrToThis typeOff
+}
+</code></pre>
+<p>在<code>_type</code>之后存储的是各类型额外需要描述的信息，例如slice的类型元数据在<code>_type</code>结构体后面，记录着一个 <code>*_type</code>，指向其存储的元素的类型元数据（比如<code>[]string</code>，它的<code>elem</code>就会指向string的类型元数据）：</p>
+<pre><code class="language-go">type slicetype struct {
+	typ  _type
+	elem *_type
+}
+</code></pre>
+<p>举例，<code>[]string</code>类型：</p>
+<p><img src="/images/Golang/go-type-system/stringslice.jpg" alt="stringptr"></p>
+<p>对于指针类型，我们可以看到它在<code>_type</code>后面也额外存储了一个<code>*_type</code>指向该指针类型所指向类型的类型元数据：</p>
+<pre><code class="language-go">type ptrtype struct {
+	typ  _type
+	elem *_type
+}
+</code></pre>
+<p>举例，<code>*string</code>类型：</p>
+<p><img src="/images/Golang/go-type-system/stringptr.jpg" alt="stringptr"></p>
+<p>在<a href="https://github.com/golang/go/blob/master/src/runtime/type.go">runtime/type.go</a>内同样还定义了map、struct等类型的元数据，都是采用了类似的结构。</p>
+<h2 id="自定义类型元数据">自定义类型元数据</h2>
+<p>如果是自定义类型，<code>_type</code>后面会跟一个<code>uncommontype</code>结构体：</p>
+<pre><code class="language-go">type uncommontype struct {
+	pkgpath nameOff
+	mcount  uint16 // number of methods
+	xcount  uint16 // number of exported methods
+	moff    uint32 // offset from this uncommontype to [mcount]method
+	_       uint32 // unused
+}
+</code></pre>
+<p>其中：</p>
+<ul>
+<li>pkgpath记录类型所在的包路径</li>
+<li>mcount记录该类型关联方法的数量</li>
+<li>xcount记录该类型公有方法的数量</li>
+<li>moff记录了该类型关联方法相对于此uncommontype结构体的偏移量（字节为单位），也就是此uncommontype结构体距离数组<code>[mcount]method</code>起始地址的偏移字节量</li>
+</ul>
+<p>方法的类型元数据<code>method</code>定义如下：</p>
+<pre><code class="language-go">type method struct {
+	name nameOff
+	mtyp typeOff
+	ifn  textOff
+	tfn  textOff
+}
+</code></pre>
+<p>我们举个例子，假如说我们基于字符串切片（<code>[]slice</code>）类型自定义一个<code>myslice</code>类型，并给这个自定义类型<code>myslice</code>赋予两个方法<code>Len()</code>和<code>Cap()</code>：</p>
+<pre><code class="language-go">type myslice []string
+
+func (ms *myslice) Len() {
+    fmt.Println(len(ms))
+}
+
+func (ms *myslice) Cap() {
+    fmt.Println(cap(ms))
+}
+</code></pre>
+<p>那么在<code>myslice</code>的类型元数据中，首先要有一个<code>slicetype</code>结构体，毕竟<code>myslice</code>的基础类型是字符串切片，<code>slicetype</code>中的<code>elem</code>指向一个<code>string</code>类型的元数据；其次因为<code>myslice</code>是自定义类型，所以还需要有一个<code>uncommontype</code>结构体，该结构体的<code>mcount=2</code>，通过<code>moff</code>可以定位到<code>myslice</code>的方法列表，包含两个方法<code>Len()</code>和<code>Cap()</code>：</p>
+<p><img src="/images/Golang/go-type-system/myslice.jpg" alt="myslice"></p>
+<h2 id="type-alias">Type Alias</h2>
+<p>Go语言中有两个内置类型很特别，<code>rune</code>和<code>byte</code>，翻一下<a href="https://github.com/golang/go/blob/master/src/builtin/builtin.go">相关的Go源码</a>可以看到它们俩是这样定义的：</p>
+<pre><code class="language-go">// byte is an alias for uint8 and is equivalent to uint8 in all ways. It is
+// used, by convention, to distinguish byte values from 8-bit unsigned
+// integer values.
+type byte = uint8
+
+// rune is an alias for int32 and is equivalent to int32 in all ways. It is
+// used, by convention, to distinguish character values from integer values.
+type rune = int32
+</code></pre>
+<p>可以发现相比我们自定义类型时多了一个等号，这种形式叫做<strong>类型别名</strong>，我们用<code>byte</code>和<code>rune</code>分别给<code>uint8</code>和<code>int32</code>起了个别名。看眼下面的<code>MyType1</code>和<code>MyType2</code>，其中<code>MyType1</code>就是int32类型别名，<code>MyType2</code>是基于<code>int32</code>的自定义类型。<code>MyType1</code>会和<code>int32</code>关联到同一个类型元数据，因此属于同一种类型；<code>MyType2</code>则会拥有自己的类型元数据，独立于<code>int32</code>。</p>
+<pre><code class="language-go">// 类型别名
+type MyType1 = int32
+
+// 自定义类型
+type MyType2 int32
+</code></pre>
+<p>类型别名：</p>
+<p><img src="/images/Golang/go-type-system/alias_MyType1.jpg" alt="类型别名"></p>
+<p>自定义类型：</p>
+<p><img src="/images/Golang/go-type-system/custom_MyType2.jpg" alt="自定义类型"></p>
+<p>自定义类型</p>
+<h2 id="结语">结语</h2>
+<p>通过初步探索Go语言类型系统，我们发现代码中每一种类型都会对应自己的类型元数据，类型定义的方法也可以通过类型元数据找到，那么这对于理解Go的<strong>接口</strong>、<strong>反射</strong>等机制有着很大的帮助。</p>
+
 </article>
 
 
@@ -295,47 +398,27 @@
         <div class="py-2">
   
     <div class="my-8 flex flex-col items-center md:flex-row">
-      <a href="/authors/example-author/" class="md:me-4 text-primary-text h-24 w-24">
+      <a href="/authors/tomcn0803/" class="md:me-4 text-primary-text h-24 w-24">
         
         
-          <img
-            src="/images/icon.png"
-            class="bg-primary-bg w-full rounded-full"
-            alt="Avatar"
-          />
+          <i class="fas fa-user-circle fa-6x"></i>
         
       </a>
       <div class="mt-4 w-full md:mt-0 md:w-auto">
         <a
-          href="/authors/example-author/"
+          href="/authors/tomcn0803/"
           class="mb-2 block border-b pb-1 text-lg font-bold"
         >
-          <h3>Example Author</h3>
+          <h3>TomCN0803</h3>
         </a>
-        <span class="block pb-2">Aenean vel bibendum quam. Aliquam at mollis quam. Proin efficitur.</span>
+        <span class="block pb-2"></span>
         
           
           
           
           
-          <a href="mailto:example@example.com" class="me-2">
-            <i class="fas fa-envelope"></i>
-          </a>
-        
-          
-          
-          
-          
-          <a href="https://example.com/" class="me-2">
-            <i class="fab fa-twitter"></i>
-          </a>
-        
-          
-          
-          
-          
-          <a href="https://example.com/" class="me-2">
-            <i class="fab fa-github"></i>
+          <a href="" class="me-2">
+            <i class="&lt;nil&gt; fa-&lt;nil&gt;"></i>
           </a>
         
       </div>
@@ -351,16 +434,11 @@
   >
     <div>
       
-        <span class="text-primary-text block font-bold"
-          >上一页</span
-        >
-        <a href="/posts/golang/go_type_system/" class="block">「Go系列」浅探一下Go语言的类型系统</a>
-      
     </div>
     <div class="mt-4 md:mt-0 md:text-right">
       
         <span class="text-primary-text block font-bold">下一页</span>
-        <a href="/posts/math-support/" class="block">Math Support</a>
+        <a href="/posts/diagram-support/" class="block">Diagram Support</a>
       
     </div>
   </div>
