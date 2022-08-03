@@ -8,7 +8,16 @@
     <language>zh</language>
     <copyright>&amp;copy; 2021 &lt;a href=&#34;https://www.wangchucheng.com/&#34;&gt;WANG Chucheng&lt;/a&gt; and &lt;a href=&#34;https://www.ruiqima.com/&#34;&gt;MA Ruiqi&lt;/a&gt;
 </copyright>
-    <lastBuildDate>Thu, 28 Jul 2022 10:30:06 +0800</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 02 Aug 2022 08:31:05 +0800</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>「Go系列」interface是如何实现的？</title>
+      <link>/posts/golang/go_interface/</link>
+      <pubDate>Tue, 02 Aug 2022 08:31:05 +0800</pubDate>
+      
+      <guid>/posts/golang/go_interface/</guid>
+      <description>Go语言提供interface类型作为接口类型，声明interface时候会把其方法定义在一起，任何其他类型只要实现了这些方法就是实现了这个接口。不同</description>
+    </item>
+    
     <item>
       <title>「Go系列」浅探一下Go语言的类型系统</title>
       <link>/posts/golang/go_type_system/</link>
