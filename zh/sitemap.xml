@@ -2,14 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>/posts/golang/go_interface/</loc>
-    <lastmod>2022-08-02T08:31:05+08:00</lastmod>
-  </url><url>
-    <loc>/posts/</loc>
-    <lastmod>2022-08-02T08:31:05+08:00</lastmod>
+    <loc>/posts/leetcode/leetcode_8/</loc>
+    <lastmod>2022-08-03T23:34:09+08:00</lastmod>
   </url><url>
     <loc>/</loc>
-    <lastmod>2022-08-02T08:31:05+08:00</lastmod>
+    <lastmod>2022-08-03T23:34:09+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -21,33 +18,14 @@
                 href="/"
                 />
   </url><url>
+    <loc>/posts/</loc>
+    <lastmod>2022-08-03T23:34:09+08:00</lastmod>
+  </url><url>
+    <loc>/posts/golang/go_interface/</loc>
+    <lastmod>2022-07-22T08:31:05+08:00</lastmod>
+  </url><url>
     <loc>/posts/golang/go_type_system/</loc>
-    <lastmod>2022-07-28T10:30:06+08:00</lastmod>
-  </url><url>
-    <loc>/authors/</loc>
-    <lastmod>2022-07-28T10:30:06+08:00</lastmod>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="/en/authors/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="zh"
-                href="/authors/"
-                />
-  </url><url>
-    <loc>/authors/tomcn0803/</loc>
-    <lastmod>2022-07-28T10:30:06+08:00</lastmod>
-  </url><url>
-    <loc>/posts/diagram-support/</loc>
-    <lastmod>2021-03-31T13:11:22+08:00</lastmod>
-  </url><url>
-    <loc>/authors/example-author/</loc>
-    <lastmod>2021-03-31T13:11:22+08:00</lastmod>
-  </url><url>
-    <loc>/posts/math-support/</loc>
-    <lastmod>2020-11-20T22:52:56+08:00</lastmod>
+    <lastmod>2022-07-08T10:30:06+08:00</lastmod>
   </url><url>
     <loc>/docs/example-doc/chapter-1/</loc>
     <lastmod>2020-10-16T00:00:00+00:00</lastmod>
@@ -70,8 +48,19 @@
     <loc>/docs/example-doc/nested-chapter/</loc>
     <lastmod>2020-10-16T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>/authors/</loc>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="/en/authors/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="zh"
+                href="/authors/"
+                />
+  </url><url>
     <loc>/categories/</loc>
-    <lastmod>2020-05-26T00:00:00+00:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -83,14 +72,11 @@
                 href="/categories/"
                 />
   </url><url>
-    <loc>/posts/featured-image/</loc>
-    <lastmod>2020-05-26T00:00:00+00:00</lastmod>
+    <loc>/authors/example-author/</loc>
   </url><url>
-    <loc>/tags/image/</loc>
-    <lastmod>2020-05-26T00:00:00+00:00</lastmod>
+    <loc>/authors/hugo-authors/</loc>
   </url><url>
     <loc>/series/</loc>
-    <lastmod>2020-05-26T00:00:00+00:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -103,7 +89,6 @@
                 />
   </url><url>
     <loc>/tags/</loc>
-    <lastmod>2020-05-26T00:00:00+00:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -115,43 +100,6 @@
                 href="/tags/"
                 />
   </url><url>
-    <loc>/categories/themes/</loc>
-    <lastmod>2020-05-26T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/series/themes-guide/</loc>
-    <lastmod>2020-05-26T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/tags/css/</loc>
-    <lastmod>2019-03-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/tags/html/</loc>
-    <lastmod>2019-03-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/authors/hugo-authors/</loc>
-    <lastmod>2019-03-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/tags/markdown/</loc>
-    <lastmod>2019-03-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/posts/markdown-syntax/</loc>
-    <lastmod>2019-03-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/categories/syntax/</loc>
-    <lastmod>2019-03-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/tags/themes/</loc>
-    <lastmod>2019-03-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/posts/placeholder-text/</loc>
-    <lastmod>2019-03-09T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/tags/text/</loc>
-    <lastmod>2019-03-09T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/tags/emoji/</loc>
-    <lastmod>2019-03-05T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>/posts/emoji-support/</loc>
-    <lastmod>2019-03-05T00:00:00+00:00</lastmod>
+    <loc>/authors/tomcn0803/</loc>
   </url>
 </urlset>

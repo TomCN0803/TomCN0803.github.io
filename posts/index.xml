@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on Tom&#39;s Blog</title>
+    <title>文章 on Tom&#39;s Blog</title>
     <link>/posts/</link>
-    <description>Recent content in Posts on Tom&#39;s Blog</description>
+    <description>Recent content in 文章 on Tom&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh</language>
     <copyright>&amp;copy; 2021 &lt;a href=&#34;https://www.wangchucheng.com/&#34;&gt;WANG Chucheng&lt;/a&gt; and &lt;a href=&#34;https://www.ruiqima.com/&#34;&gt;MA Ruiqi&lt;/a&gt;
 </copyright>
-    <lastBuildDate>Tue, 02 Aug 2022 08:31:05 +0800</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 03 Aug 2022 23:34:09 +0800</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>「力扣刷题」8.字符串转换整数 (atoi)</title>
+      <link>/posts/leetcode/leetcode_8/</link>
+      <pubDate>Wed, 03 Aug 2022 23:34:09 +0800</pubDate>
+      
+      <guid>/posts/leetcode/leetcode_8/</guid>
+      <description>这道题是一道考察字符串的中等难度题目，首先来看一下这道题的题干： 这道题如果用库函数做那就是一行代码的事，但是题目显然是不推荐使用库函数的。但尽管不用库</description>
+    </item>
+    
     <item>
       <title>「Go系列」interface是如何实现的？</title>
       <link>/posts/golang/go_interface/</link>
-      <pubDate>Tue, 02 Aug 2022 08:31:05 +0800</pubDate>
+      <pubDate>Fri, 22 Jul 2022 08:31:05 +0800</pubDate>
       
       <guid>/posts/golang/go_interface/</guid>
       <description>Go语言提供interface类型作为接口类型，声明interface时候会把其方法定义在一起，任何其他类型只要实现了这些方法就是实现了这个接口。不同</description>
@@ -21,64 +30,10 @@
     <item>
       <title>「Go系列」浅探一下Go语言的类型系统</title>
       <link>/posts/golang/go_type_system/</link>
-      <pubDate>Thu, 28 Jul 2022 10:30:06 +0800</pubDate>
+      <pubDate>Fri, 08 Jul 2022 10:30:06 +0800</pubDate>
       
       <guid>/posts/golang/go_type_system/</guid>
       <description>Go语言是强类型语言，编译器在编译阶段会给代码中每一种类型生成对应的类型描述信息并写入到二进制可执行文件中，这些类型描述信息就被称为“类型元数据”。 G</description>
-    </item>
-    
-    <item>
-      <title>Diagram Support</title>
-      <link>/posts/diagram-support/</link>
-      <pubDate>Wed, 31 Mar 2021 13:11:22 +0800</pubDate>
-      
-      <guid>/posts/diagram-support/</guid>
-      <description>&lt;p&gt;Eureka supports the rendering of diagrams by using Mermaid.&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Math Support</title>
-      <link>/posts/math-support/</link>
-      <pubDate>Fri, 20 Nov 2020 22:52:56 +0800</pubDate>
-      
-      <guid>/posts/math-support/</guid>
-      <description>&lt;p&gt;Eureka supports the rendering of mathematical formulas by using KaTeX.&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Featured Image</title>
-      <link>/posts/featured-image/</link>
-      <pubDate>Tue, 26 May 2020 00:00:00 +0000</pubDate>
-      
-      <guid>/posts/featured-image/</guid>
-      <description>&lt;p&gt;Maecenas maximus, elit in ornare porttitor, nisi eros hendrerit nisl, sed fermentum nulla urna blandit tellus.&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Markdown Syntax Guide</title>
-      <link>/posts/markdown-syntax/</link>
-      <pubDate>Mon, 11 Mar 2019 00:00:00 +0000</pubDate>
-      
-      <guid>/posts/markdown-syntax/</guid>
-      <description>&lt;p&gt;This article offers a sample of basic Markdown syntax that can be used in Hugo content files, also it shows whether basic HTML elements are decorated with CSS in a Hugo theme.&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Placeholder Text</title>
-      <link>/posts/placeholder-text/</link>
-      <pubDate>Sat, 09 Mar 2019 00:00:00 +0000</pubDate>
-      
-      <guid>/posts/placeholder-text/</guid>
-      <description>&lt;p&gt;Lorem est tota propiore conpellat pectoribus de pectora summo.&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Emoji Support</title>
-      <link>/posts/emoji-support/</link>
-      <pubDate>Tue, 05 Mar 2019 00:00:00 +0000</pubDate>
-      
-      <guid>/posts/emoji-support/</guid>
-      <description>&lt;p&gt;Emoji can be enabled in a Hugo project in a number of ways.&lt;/p&gt;</description>
     </item>
     
   </channel>

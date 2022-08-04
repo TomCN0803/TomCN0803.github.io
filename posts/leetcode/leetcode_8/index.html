@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-<title>「Go系列」interface是如何实现的？ | Tom&#39;s Blog</title>
+<title>「力扣刷题」8.字符串转换整数 (atoi) | Tom&#39;s Blog</title>
 
 <meta name="generator" content="Hugo Eureka 0.9.3" />
 <link rel="stylesheet" href="/css/eureka.min.9cec6350e37e534b0338fa9a085bf06855de3b0f2dcf857e792e5e97b07ea905d4d5513db554cbc26a9c3da622bae92d.css">
@@ -75,7 +75,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/images/icon_hu64421c6c7700f606f0ad45d807017b09_5843_180x180_fill_box_center_3.png">
 
 <meta name="description"
-  content="Go语言提供interface类型作为接口类型，声明interface时候会把其方法定义在一起，任何其他类型只要实现了这些方法就是实现了这个接口。不同">
+  content="这道题是一道考察字符串的中等难度题目，首先来看一下这道题的题干： 这道题如果用库函数做那就是一行代码的事，但是题目显然是不推荐使用库函数的。但尽管不用库">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -87,8 +87,8 @@
       "item":"/posts/"},{
       "@type": "ListItem",
       "position": 2 ,
-      "name":"「Go系列」interface是如何实现的？",
-      "item":"/posts/golang/go_interface/"}]
+      "name":"「力扣刷题」8.字符串转换整数 (atoi)",
+      "item":"/posts/leetcode/leetcode_8/"}]
 }
 </script>
 
@@ -100,11 +100,11 @@
     "@type": "Article",
     "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": "/posts/golang/go_interface/"
+        "@id": "/posts/leetcode/leetcode_8/"
     },
-    "headline": "「Go系列」interface是如何实现的？ | Tom\u0027s Blog","datePublished": "2022-07-22T08:31:05+08:00",
-    "dateModified": "2022-07-22T08:31:05+08:00",
-    "wordCount":  1627 ,
+    "headline": "「力扣刷题」8.字符串转换整数 (atoi) | Tom\u0027s Blog","datePublished": "2022-08-03T23:34:09+08:00",
+    "dateModified": "2022-08-03T23:34:09+08:00",
+    "wordCount":  1620 ,
     "publisher": {
         "@type": "Person",
         "name": "WANG Chucheng",
@@ -113,21 +113,21 @@
             "url": "/images/icon.png"
         }
         },
-    "description": "Go语言提供interface类型作为接口类型，声明interface时候会把其方法定义在一起，任何其他类型只要实现了这些方法就是实现了这个接口。不同"
+    "description": "这道题是一道考察字符串的中等难度题目，首先来看一下这道题的题干： 这道题如果用库函数做那就是一行代码的事，但是题目显然是不推荐使用库函数的。但尽管不用库"
 }
-</script><meta property="og:title" content="「Go系列」interface是如何实现的？ | Tom&#39;s Blog" />
+</script><meta property="og:title" content="「力扣刷题」8.字符串转换整数 (atoi) | Tom&#39;s Blog" />
 <meta property="og:type" content="article" />
 
 
 <meta property="og:image" content="/images/icon.png">
 
 
-<meta property="og:url" content="/posts/golang/go_interface/" />
+<meta property="og:url" content="/posts/leetcode/leetcode_8/" />
 
 
 
 
-<meta property="og:description" content="Go语言提供interface类型作为接口类型，声明interface时候会把其方法定义在一起，任何其他类型只要实现了这些方法就是实现了这个接口。不同" />
+<meta property="og:description" content="这道题是一道考察字符串的中等难度题目，首先来看一下这道题的题干： 这道题如果用库函数做那就是一行代码的事，但是题目显然是不推荐使用库函数的。但尽管不用库" />
 
 
 
@@ -144,10 +144,10 @@
 
 
 
-<meta property="article:published_time" content="2022-07-22T08:31:05&#43;08:00" />
+<meta property="article:published_time" content="2022-08-03T23:34:09&#43;08:00" />
 
 
-<meta property="article:modified_time" content="2022-07-22T08:31:05&#43;08:00" />
+<meta property="article:modified_time" content="2022-08-03T23:34:09&#43;08:00" />
 
 
 
@@ -236,7 +236,7 @@
       class="lg:col-start-2 bg-secondary-bg col-span-2 rounded px-6 py-8 lg:col-span-6"
     >
       <article class="prose">
-  <h1 class="mb-4">「Go系列」interface是如何实现的？</h1>
+  <h1 class="mb-4">「力扣刷题」8.字符串转换整数 (atoi)</h1>
 
   <div
   class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
@@ -244,7 +244,7 @@
   <div class="me-6 my-2">
     <i class="fas fa-calendar me-1"></i>
     <span
-      >2022-07-22</span
+      >2022-08-03</span
     >
   </div>
   <div class="me-6 my-2">
@@ -261,81 +261,135 @@
   
   
 
-  <p>Go语言提供interface类型作为接口类型，声明interface时候会把其方法定义在一起，任何其他类型只要实现了这些方法就是实现了这个接口。不同于Java对接口的显式实现，Go语言中的类型对接口的实现是隐式的，不会标明该类型具体实现了哪些接口，那么对于强类型的Go语言，是如何动态地记录实现了该接口的具体类型？空接口和非空接口在底层又有什么区别？让我们来一起探索一下！</p>
-<h2 id="空接口类型">空接口类型</h2>
-<p>空接口，即<code>interface{}</code>，可以接收任意类型的数据，在Go 1.18泛型特性出来之前实践中往往会使用空接口结合类型断言来实现一些泛型编程的特性，因此它只要记录接收的数据是什么类型、具体数据存在哪就足够了。Go语言对于空接口类型有对应的结构体类型<code>eface</code>，翻一翻<a href="https://github.com/golang/go/blob/master/src/runtime/runtime2.go">源码</a>，可以看到<code>eface</code>的数据结构如下：</p>
-<pre><code class="language-go">type eface struct {
-	_type *_type         // 指向接口的动态类型元数据
-	data  unsafe.Pointer // 指向接口的动态值
+  <p><a href="https://leetcode.cn/problems/string-to-integer-atoi/">这道题</a>是一道考察字符串的中等难度题目，首先来看一下这道题的题干：</p>
+<p><img src="/images/Leetcode/8/leetcode-8.png" alt="8"></p>
+<p>这道题如果用库函数做那就是一行代码的事，但是题目显然是不推荐使用库函数的。但尽管不用库函数，这道题乍一看也觉得很简单，最初读完题干的感觉就是虽然题目有很多要求，但是它都给你一一总结列举了出来，所以只需要多写几个if else满足这些要求就好啦！看我分分钟写完它！</p>
+<p>但是写着写着就会发现我的代码越来越臃肿，感觉有很多if-else可以被优化但是又不敢轻易修改。这还不是最头疼的，第一次点击提交：解答错误！第二次点击提交：解答错误，第三次……每一次提交，都会看到还有一些情况没有考虑到，但是考虑了这些情况后之前的测试用例又不通过了，于是折腾来折腾去就有了如下的惨状：</p>
+<p><img src="/images/Leetcode/8/fails.png" alt="fails"></p>
+<p>其实冷静一下再仔细读读题干，然后我们假设有一个游标<code>c</code>指向输入字符串<code>s</code>的一个字符，<code>c</code>只存在以下情况：</p>
+<ul>
+<li>是空格</li>
+<li>是+或者-</li>
+<li>是数字</li>
+<li>是其它字符</li>
+</ul>
+<p>当<code>c</code>从<code>s</code>的第一个字符向最后一个字符进行滑动时候，我们假设有一个状态<code>state</code>，它也只有这几种情况：</p>
+<ul>
+<li>还没开始读取数字</li>
+<li>确定数字的正负</li>
+<li>读取数字的绝对值</li>
+<li>结束</li>
+</ul>
+<p>而且不同<code>state</code>之间的转换是取决于上面说的<code>c</code>的情况的，所以这么一来，这道题就可以用<strong>状态转移</strong>的思想来进行解决，根据我们总结的<code>c</code>和<code>state</code>以及题目要求，我们就可以绘制出下面这样的一个状态转移图：</p>
+<p><img src="/images/Leetcode/8/automaton.jpg" alt="automaton"></p>
+<p>实际上这种思想在计算机学术界有一个这样的名字——<a href="https://baike.baidu.com/item/%E7%A1%AE%E5%AE%9A%E6%9C%89%E9%99%90%E7%8A%B6%E6%80%81%E8%87%AA%E5%8A%A8%E6%9C%BA/22722750?fr=aladdin"><strong>确定有限状态自动机</strong></a>，对于一个给定的属于该自动机的状态和一个属于该自动机字母表求和的字符，它都能根据事先给定的转移函数转移到下一个状态（这个状态可以是先前那个状态）</p>
+<p>根据状态转移图，我们可以定义出状态类型，和状态的转移表：</p>
+<pre><code class="language-go">type State uint8
+
+// 四种状态
+const (
+	StateStart = iota
+	StateSigned
+	StateNumber
+	StateEnd
+)
+
+// stateTable 状态转移表
+var stateTable = [4][4]State{
+	StateStart:  {StateStart, StateSigned, StateNumber, StateEnd},
+	StateSigned: {StateEnd, StateEnd, StateNumber, StateEnd},
+	StateNumber: {StateEnd, StateEnd, StateNumber, StateEnd},
+	StateEnd:    {StateEnd, StateEnd, StateEnd, StateEnd},
 }
 </code></pre>
-<p>举个例子，空接口变量<code>e</code>被赋值之前，其中存储的<code>_type</code>和<code>data</code>都是<code>nil</code>：</p>
-<pre><code class="language-go">var e interface{}
-</code></pre>
-<p><img src="/images/Golang/go-interface/eface_before_assignment.jpg" alt="空接口赋值之前"></p>
-<p>此时如果我们打开一个文件，即把<code>*os.File</code>类型变量<code>fd</code>赋值给<code>e</code>：</p>
-<pre><code class="language-go">f, _ := os.Open(&quot;foo.txt&quot;)
-e = f
-</code></pre>
-<p>那么<code>e</code>的结构就会变成如下的样子：</p>
-<p><img src="/images/Golang/go-interface/eface_after_assignment.jpg" alt="空接口赋值之后"></p>
-<h2 id="非空接口">非空接口</h2>
-<p>不同于空接口，非空接口需要记录方法列表，一个变量要想赋值给一个非空接口类型，这个变量的类型必须要实现该接口要求的所有方法才行，<a href="https://github.com/golang/go/blob/master/src/runtime/runtime2.go">源码中</a>对非空接口<code>iface</code>的定义如下：</p>
-<pre><code class="language-go">type iface struct {
-    // 记录了接口要求的方法列表以及与data对应的动态类型信息等
-	tab  *itab
-    
-	data unsafe.Pointer // 指向接口的动态值
+<p>我们假设状态转移表的第一列是当输入<code>c</code>为空格时对应的输出状态；第二列是当输入<code>c</code>为+/-时对应的输出状态；第三列是当输入<code>c</code>为数字时对应的输出状态；第四列是当输入<code>c</code>为其它字符时对应的输出状态。因此，我们给<code>State</code>类型定义一个<code>Next</code>方法，根据输入<code>c</code>得出输出状态：</p>
+<pre><code class="language-go">func (s State) Next(c byte) State {
+	if c == ' ' {
+		return stateTable[s][0]
+	}
+	if c == '+' || c == '-' {
+		return stateTable[s][1]
+	}
+	if c &gt;= '0' &amp;&amp; c &lt;= '9' {
+		return stateTable[s][2]
+	}
+	return stateTable[s][3]
 }
 </code></pre>
-<p><code>iface.data</code>和<code>eface.data</code>的作用是相同的，那么关键信息都存储在<code>iface.tab</code>中：</p>
-<pre><code class="language-go">type itab struct {
-	inter *interfacetype
-	_type *_type
-	hash  uint32 // copy of _type.hash. Used for type switches.
-	_     [4]byte
-	fun   [1]uintptr // variable sized. fun[0]==0 means _type does not implement inter.
+<p>接下来我们就要定义一个自动机<code>Automaton</code>了，它能够根据输入<code>c</code>，然后改变自己内部的状态<code>state</code>，同时还需要记录当前读取出数字的结果。因此我们定义了一个<code>Automaton</code>接口类型，它有两个方法，定义如下：</p>
+<pre><code class="language-go">// Automaton 自动机接口
+type Automaton interface {
+	Process(c byte) bool
+	Res() int
 }
 </code></pre>
-<p><code>itab.inter</code>是接口的类型元数据，它里面记录了这个接口类型的描述信息，接口要求的方法列表就记录在<code>interfacetype.mhdr</code>这里：</p>
-<pre><code class="language-go">type interfacetype struct {
-	typ     _type
-	pkgpath name
-	mhdr    []imethod
+<p>这里<code>Process</code>方法有一个<code>bool</code>类型的返回值，用于告诉调用者还需不需要继续进行读取，因为题目要求里写了直到到达下一个非数字字符或到达输入的结尾，字符串的其余部分将被忽略，也就是说<code>StateEnd</code>无论给它什么输入<code>c</code>都会输出<code>StateEnd</code>，所以遇到了<code>StateEnd</code>就可以不用继续<code>Process</code>了。这样，我们主程序就可以这样调用：</p>
+<pre><code class="language-go">func myAtoi(s string) int {
+	atmt := NewAutomaton()
+	for i := range s {
+		if !atmt.Process(s[i]) {
+			break
+		}
+	}
+
+	return atmt.Res()
 }
 </code></pre>
-<p><code>itab._type</code>就是接口的动态类型，也就是被赋给接口类型的那个变量的类型元数据；<code>itab.hash</code>是从<code>itab._type</code>中拷贝过来的，是类型的哈希值，用于快速判断类型是否相等时使用；<code>itab.fun</code>记录的是动态类型实现的那些接口要求的方法的地址，是从方法元数据中拷贝来的，为的是快速定位到方法，如果<code>itab._type</code>对应的类型没有实现该接口中的方法，那么就有<code>fun[0]==0</code>。</p>
-<h2 id="非空接口的赋值">非空接口的赋值</h2>
-<p>如果我们声明一个变量<code>rw</code>，是<code>io.ReadWriter</code>类型，在被赋值之前，<code>rw</code>的<code>data</code>是<code>nil</code>，<code>tab</code>也是<code>nil</code>：</p>
-<pre><code class="language-go">var rw io.ReadWriter
-</code></pre>
-<p><img src="/images/Golang/go-interface/iface_before_assignment.jpg" alt="非空接口赋值之前"></p>
-<p>下面我们把一个<code>*os.File</code>类型的变量<code>f</code>，赋值给<code>rw</code>：</p>
-<pre><code class="language-go">f, _ := os.Open(&quot;test.txt&quot;)
-rw = f
-</code></pre>
-<p>此时<code>rw</code>的动态值就是<code>f</code>，动态类型就是<code>*os.File</code>，<code>itab.fun</code>就是记录了<code>*os.File</code>实现的<code>Read</code>和<code>Write</code>方法地址：</p>
-<p><img src="/images/Golang/go-interface/iface_after_assignment.jpg" alt="非空接口赋值之后"></p>
-<p>接下来我们再声明一个<code>io.Writer</code>类型的变量<code>w</code>，并把<code>f</code>赋值给<code>w</code>，此时<code>w</code>和<code>rw</code>的动态类型和动态值与<code>rw</code>相同，但是两者的接口元数据有所不同，要求的方法列表（<code>iface.inter.mhdr</code>）也不相同：</p>
-<pre><code class="language-go">var w io.Writer
-w = f
-</code></pre>
-<p><img src="/images/Golang/go-interface/iface_after_assignment_2.jpg" alt="非空接口赋值之后2"></p>
-<h2 id="itab缓存">itab缓存</h2>
-<p>对于<code>itab</code>我们还要额外关注一点，既然一个非空接口类型和一个动态类型就可以确定一个<code>itab</code>的内容，那这个<code>itab</code>结构体自然是可以被接口类型与动态类型均相同的接口变量复用的。实际上Go语言会将用到的<code>itab</code>结构体用键值对缓存起来，并以接口类型和动态类型共同组合为键，以<code>*itab</code>为对应的的值，构建成一个哈希表，用于存储与查询<code>itab</code>信息。</p>
-<p>这个哈希表叫作<code>itabTable</code>，其类型元数据如下，和Go内置的<code>map</code>有所不同，结构更加简单：</p>
-<pre><code class="language-go">type itabTableType struct {
-    size    uintptr             // length of entries array. Always a power of 2.
-    count   uintptr             // current number of filled entries.
-    entries [itabInitSize]*itab // really [size] large
+<p>我们目前还没有对<code>Automaton</code>进行实现，因此我们定义<code>automatonImpl</code>实现该接口。<code>automatonImpl</code>字段定义如下：</p>
+<pre><code class="language-go">type automatonImpl struct {
+	state  State // 状态
+	abs    int   // 读取的数字绝对值
+	signed int   // 符号
+	res    int32 // 读取的数字结果
 }
 </code></pre>
-<p>需要一个<code>itab</code>时，会首先去<code>itabTable</code>里查找，计算哈希值时会用到接口类型<code>itab.inter</code>和动态类型<code>itab._type</code>的类型哈希值：</p>
-<pre><code class="language-go">func itabHashFunc(inter *interfacetype, typ *_type) uintptr {
-    return uintptr(inter.typ.hash ^ typ.hash)
+<p>实现<code>Process</code>方法：</p>
+<pre><code class="language-go">func (a *automatonImpl) Process(c byte) bool {
+	a.state = a.state.Next(c) // 根据输入c更新自动机状态
+	switch a.state {
+	case StateSigned:
+        // 判定符号
+		if c == '-' {
+			a.signed = -1
+		} else {
+			a.signed = 1
+		}
+	case StateNumber:
+        // 更新读取数字的绝对值
+		a.abs = 10*a.abs + int(c-'0')
+        
+        // 由于题目要求返回的结果是32位的，所以这里要进行判断看看是否溢出，按照题目要求，如果溢出则要进行截断
+		tmp := a.abs * a.signed
+		if tmp &gt; math.MaxInt32 {
+			a.abs = math.MaxInt32
+		} else if tmp &lt; math.MinInt32 {
+			a.abs = -math.MinInt32
+		}
+		a.res = int32(a.abs * a.signed)
+	case StateEnd:
+        // 如果是StateEnd就通知调用者可以不用继续Process了
+		return false
+	default:
+	}
+
+	return true
+}
+
+func (a *automatonImpl) Res() int {
+	return int(a.res)
 }
 </code></pre>
-<p>如果能查询到对应的<code>itab</code>指针，就直接拿来使用。若没有就要再创建，然后添加到<code>itabTable</code>中。</p>
+<p>最终，我们再写一个<code>NewAutomaton</code>函数用于初始化自动机，并返回：</p>
+<pre><code class="language-go">func NewAutomaton() Automaton {
+	return &amp;automatonImpl{
+		state:  StateStart, // 初始状态
+		abs:    0,
+		signed: 1,
+	}
+}
+</code></pre>
+<p>这样一来，我们的代码就没那么臃肿了，而且有着良好的扩展性、抽象性。最后点击提交，完美！</p>
+<p><img src="/images/Leetcode/8/allpass.png" alt="allpass"></p>
 
 </article>
 
@@ -354,16 +408,11 @@ w = f
   >
     <div>
       
-        <span class="text-primary-text block font-bold"
-          >上一页</span
-        >
-        <a href="/posts/leetcode/leetcode_8/" class="block">「力扣刷题」8.字符串转换整数 (atoi)</a>
-      
     </div>
     <div class="mt-4 md:mt-0 md:text-right">
       
         <span class="text-primary-text block font-bold">下一页</span>
-        <a href="/posts/golang/go_type_system/" class="block">「Go系列」浅探一下Go语言的类型系统</a>
+        <a href="/posts/golang/go_interface/" class="block">「Go系列」interface是如何实现的？</a>
       
     </div>
   </div>
