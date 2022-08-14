@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-<title>「力扣刷题」8.字符串转换整数 (atoi) | Tom&#39;s Blog</title>
+<title>「Go系列」Map类型深入学习 | Tom&#39;s Blog</title>
 
 <meta name="generator" content="Hugo Eureka 0.9.3" />
 <link rel="stylesheet" href="/css/eureka.min.9cec6350e37e534b0338fa9a085bf06855de3b0f2dcf857e792e5e97b07ea905d4d5513db554cbc26a9c3da622bae92d.css">
@@ -75,7 +75,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/images/icon_hu64421c6c7700f606f0ad45d807017b09_5843_180x180_fill_box_center_3.png">
 
 <meta name="description"
-  content="这道题是一道考察字符串的中等难度题目，首先来看一下这道题的题干： 这道题如果用库函数做那就是一行代码的事，但是题目显然是不推荐使用库函数的。但尽管不用库">
+  content="Go语言中的Map类型是用来存储键值对的数据结构，例如map[string]int就是用来存储键类型为string值类型为int的键值对。Map底层实">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -87,8 +87,8 @@
       "item":"/posts/"},{
       "@type": "ListItem",
       "position": 2 ,
-      "name":"「力扣刷题」8.字符串转换整数 (atoi)",
-      "item":"/posts/leetcode/leetcode_8/"}]
+      "name":"「Go系列」Map类型深入学习",
+      "item":"/posts/golang/go_map/"}]
 }
 </script>
 
@@ -100,11 +100,11 @@
     "@type": "Article",
     "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": "/posts/leetcode/leetcode_8/"
+        "@id": "/posts/golang/go_map/"
     },
-    "headline": "「力扣刷题」8.字符串转换整数 (atoi) | Tom\u0027s Blog","datePublished": "2022-08-03T23:34:09+08:00",
-    "dateModified": "2022-08-03T23:34:09+08:00",
-    "wordCount":  1620 ,
+    "headline": "「Go系列」Map类型深入学习 | Tom\u0027s Blog","datePublished": "2022-08-14T19:13:05+08:00",
+    "dateModified": "2022-08-14T19:13:05+08:00",
+    "wordCount":  2372 ,
     "publisher": {
         "@type": "Person",
         "name": "WANG Chucheng",
@@ -113,21 +113,21 @@
             "url": "/images/icon.png"
         }
         },
-    "description": "这道题是一道考察字符串的中等难度题目，首先来看一下这道题的题干： 这道题如果用库函数做那就是一行代码的事，但是题目显然是不推荐使用库函数的。但尽管不用库"
+    "description": "Go语言中的Map类型是用来存储键值对的数据结构，例如map[string]int就是用来存储键类型为string值类型为int的键值对。Map底层实"
 }
-</script><meta property="og:title" content="「力扣刷题」8.字符串转换整数 (atoi) | Tom&#39;s Blog" />
+</script><meta property="og:title" content="「Go系列」Map类型深入学习 | Tom&#39;s Blog" />
 <meta property="og:type" content="article" />
 
 
 <meta property="og:image" content="/images/icon.png">
 
 
-<meta property="og:url" content="/posts/leetcode/leetcode_8/" />
+<meta property="og:url" content="/posts/golang/go_map/" />
 
 
 
 
-<meta property="og:description" content="这道题是一道考察字符串的中等难度题目，首先来看一下这道题的题干： 这道题如果用库函数做那就是一行代码的事，但是题目显然是不推荐使用库函数的。但尽管不用库" />
+<meta property="og:description" content="Go语言中的Map类型是用来存储键值对的数据结构，例如map[string]int就是用来存储键类型为string值类型为int的键值对。Map底层实" />
 
 
 
@@ -144,10 +144,10 @@
 
 
 
-<meta property="article:published_time" content="2022-08-03T23:34:09&#43;08:00" />
+<meta property="article:published_time" content="2022-08-14T19:13:05&#43;08:00" />
 
 
-<meta property="article:modified_time" content="2022-08-03T23:34:09&#43;08:00" />
+<meta property="article:modified_time" content="2022-08-14T19:13:05&#43;08:00" />
 
 
 
@@ -236,7 +236,7 @@
       class="lg:col-start-2 bg-secondary-bg col-span-2 rounded px-6 py-8 lg:col-span-6"
     >
       <article class="prose">
-  <h1 class="mb-4">「力扣刷题」8.字符串转换整数 (atoi)</h1>
+  <h1 class="mb-4">「Go系列」Map类型深入学习</h1>
 
   <div
   class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
@@ -244,12 +244,12 @@
   <div class="me-6 my-2">
     <i class="fas fa-calendar me-1"></i>
     <span
-      >2022-08-03</span
+      >2022-08-14</span
     >
   </div>
   <div class="me-6 my-2">
     <i class="fas fa-clock me-1"></i>
-    <span>4分钟阅读时长</span>
+    <span>5分钟阅读时长</span>
   </div>
 
   
@@ -261,135 +261,80 @@
   
   
 
-  <p><a href="https://leetcode.cn/problems/string-to-integer-atoi/">这道题</a>是一道考察字符串的中等难度题目，首先来看一下这道题的题干：</p>
-<p><img src="/images/Leetcode/8/leetcode-8.png" alt="8"></p>
-<p>这道题如果用库函数做那就是一行代码的事，但是题目显然是不推荐使用库函数的。但尽管不用库函数，这道题乍一看也觉得很简单，最初读完题干的感觉就是虽然题目有很多要求，但是它都给你一一总结列举了出来，所以只需要多写几个if else满足这些要求就好啦！看我分分钟写完它！</p>
-<p>但是写着写着就会发现我的代码越来越臃肿，感觉有很多if-else可以被优化但是又不敢轻易修改。这还不是最头疼的，第一次点击提交：解答错误！第二次点击提交：解答错误，第三次……每一次提交，都会看到还有一些情况没有考虑到，但是考虑了这些情况后之前的测试用例又不通过了，于是折腾来折腾去就有了如下的惨状：</p>
-<p><img src="/images/Leetcode/8/fails.png" alt="fails"></p>
-<p>其实冷静一下再仔细读读题干，然后我们假设有一个游标<code>c</code>指向输入字符串<code>s</code>的一个字符，<code>c</code>只存在以下情况：</p>
+  <p>Go语言中的Map类型是用来存储键值对的数据结构，例如<code>map[string]int</code>就是用来存储键类型为<code>string</code>值类型为<code>int</code>的键值对。Map底层实际上就是一个哈希表结构，Go中每一个Map类型的变量实际上就是一个指向其对应哈希表的指针。为了搞清楚Go的Map到底长什么样，我们带着以下几个关键问题去翻翻<a href="https://github.com/golang/go/blob/master/src/runtime/map.go">Map源码</a>：</p>
 <ul>
-<li>是空格</li>
-<li>是+或者-</li>
-<li>是数字</li>
-<li>是其它字符</li>
+<li>Map长什么样？数据结构中有哪些字段？</li>
+<li>Map如何解决哈希冲突？</li>
+<li>当分配的内存空间不够时候，Map如何进行扩容？</li>
 </ul>
-<p>当<code>c</code>从<code>s</code>的第一个字符向最后一个字符进行滑动时候，我们假设有一个状态<code>state</code>，它也只有这几种情况：</p>
+<h2 id="map数据结构">Map数据结构</h2>
+<p>Map类型变量都是指向<code>hmap</code>结构体的指针，<code>hmap</code>可以被理解为是一个Map的header：</p>
+<pre><code class="language-go">type hmap struct {
+	count     int 
+	flags     uint8
+	B         uint8  
+	noverflow uint16 
+	hash0     uint32 
+
+	buckets    unsafe.Pointer 
+	oldbuckets unsafe.Pointer 
+	nevacuate  uintptr        
+
+	extra *mapextra 
+}
+</code></pre>
+<p>其中<code>count</code>是当前Map中键值对的总数量，<code>B</code>代表的是当前Map中总共有2的<code>B</code>次幂个<strong>桶（bucket）</strong>。</p>
+<h3 id="桶">桶</h3>
+<p>桶（bucket）是真正用来存放Map中键值对的数据结构，对应Go源码当中的<code>bmap</code>结构：</p>
+<pre><code class="language-go">type bmap struct {
+	tophash [bucketCnt]uint8
+}
+</code></pre>
+<p>源码中只给出了<code>bmap</code>中的其中一个组成——<code>tophash</code>，是一个大小为<code>bucketCnt</code>的数组，用于存放<strong>当前桶中键值对中键的哈希值的高八位</strong>，且<code>bucketCnt</code>是一个固定的常数8。一个桶的具体数据结构如下图：</p>
+<p><img src="/images/Golang/go-map/bmap.png" alt="bmap"></p>
+<p>桶中紧挨着<code>tophash</code>的就是8个键和8个值，值得注意的是Go中桶将键和值分开集中存放，这种虽然没有将键值对放一起那样直观，但是这样可以解决内存对齐的问题。</p>
+<p>Go语言中的Map在根据一个键去定位对应的值的时候，通过对键进行哈希得到哈希值<code>hash</code>，然后<code>hash &amp; (2^B - 1)</code>，得到的结果便是存放该键对应值的桶，这也就解释了为什么<code>hmap</code>中存放的是<code>B</code>，因为桶的个数必然得是2的<code>B</code>次幂，这样才能保证根据键的哈希<code>hash</code>一定能找到一个对应的桶。</p>
+<h2 id="解决哈希冲突">解决哈希冲突</h2>
+<p>当Map中数据比较多的时候，难免会出现两个不同的键经过哈希后得到了相同的哈希值，进而会导致这两个键定位到同一个桶，这样就产生了哈希冲突。</p>
+<p>一般解决哈希冲突的办法是<strong>开放寻址法</strong>和<strong>拉链法</strong>：</p>
 <ul>
-<li>还没开始读取数字</li>
-<li>确定数字的正负</li>
-<li>读取数字的绝对值</li>
-<li>结束</li>
+<li>开放寻址法：当产生哈希冲突时，继续顺序地往后面的桶进行遍历，直到找到存放该键值对的桶；</li>
+<li>拉链法：当产生哈希冲突时，将该键值对也存入桶中，排在桶中已有键值对后面。</li>
 </ul>
-<p>而且不同<code>state</code>之间的转换是取决于上面说的<code>c</code>的情况的，所以这么一来，这道题就可以用<strong>状态转移</strong>的思想来进行解决，根据我们总结的<code>c</code>和<code>state</code>以及题目要求，我们就可以绘制出下面这样的一个状态转移图：</p>
-<p><img src="/images/Leetcode/8/automaton.jpg" alt="automaton"></p>
-<p>实际上这种思想在计算机学术界有一个这样的名字——<a href="https://baike.baidu.com/item/%E7%A1%AE%E5%AE%9A%E6%9C%89%E9%99%90%E7%8A%B6%E6%80%81%E8%87%AA%E5%8A%A8%E6%9C%BA/22722750?fr=aladdin"><strong>确定有限状态自动机</strong></a>，对于一个给定的属于该自动机的状态和一个属于该自动机字母表求和的字符，它都能根据事先给定的转移函数转移到下一个状态（这个状态可以是先前那个状态）</p>
-<p>根据状态转移图，我们可以定义出状态类型，和状态的转移表：</p>
-<pre><code class="language-go">type State uint8
-
-// 四种状态
-const (
-	StateStart = iota
-	StateSigned
-	StateNumber
-	StateEnd
-)
-
-// stateTable 状态转移表
-var stateTable = [4][4]State{
-	StateStart:  {StateStart, StateSigned, StateNumber, StateEnd},
-	StateSigned: {StateEnd, StateEnd, StateNumber, StateEnd},
-	StateNumber: {StateEnd, StateEnd, StateNumber, StateEnd},
-	StateEnd:    {StateEnd, StateEnd, StateEnd, StateEnd},
+<p>根据之前看的<code>bmap</code>结构，显而易见Go采用的是拉链法去解决哈希冲突。</p>
+<p>当一个桶中因为哈希冲突过多导致初始的8个键值对容量放不下了，那么还会在这个桶后面链接一个<strong>溢出桶（overflow bucket）</strong>，结构和普通的桶是一样的。实际上Go语言中认为当哈希表要分配的桶的数目大于2^4，就会预分配2^(B-4)个溢出桶备用。这些常规桶和溢出桶在内存中是连续的，只是前2^B个用作常规桶，后面的用作溢出桶。</p>
+<p><code>hmap</code>中的<code>extra</code>字段指向的<code>mapextra</code>结构体就是当当前Map使用溢出桶的时候要记录的溢出桶相关的信息：</p>
+<pre><code class="language-go">type mapextra struct {
+    overflow    *[]*bmap // 当前Map用到的溢出桶
+	oldoverflow *[]*bmap // 扩容时存放旧桶中用到的溢出桶
+	nextOverflow *bmap // 下一个尚未使用的溢出桶
 }
 </code></pre>
-<p>我们假设状态转移表的第一列是当输入<code>c</code>为空格时对应的输出状态；第二列是当输入<code>c</code>为+/-时对应的输出状态；第三列是当输入<code>c</code>为数字时对应的输出状态；第四列是当输入<code>c</code>为其它字符时对应的输出状态。因此，我们给<code>State</code>类型定义一个<code>Next</code>方法，根据输入<code>c</code>得出输出状态：</p>
-<pre><code class="language-go">func (s State) Next(c byte) State {
-	if c == ' ' {
-		return stateTable[s][0]
-	}
-	if c == '+' || c == '-' {
-		return stateTable[s][1]
-	}
-	if c &gt;= '0' &amp;&amp; c &lt;= '9' {
-		return stateTable[s][2]
-	}
-	return stateTable[s][3]
-}
-</code></pre>
-<p>接下来我们就要定义一个自动机<code>Automaton</code>了，它能够根据输入<code>c</code>，然后改变自己内部的状态<code>state</code>，同时还需要记录当前读取出数字的结果。因此我们定义了一个<code>Automaton</code>接口类型，它有两个方法，定义如下：</p>
-<pre><code class="language-go">// Automaton 自动机接口
-type Automaton interface {
-	Process(c byte) bool
-	Res() int
-}
-</code></pre>
-<p>这里<code>Process</code>方法有一个<code>bool</code>类型的返回值，用于告诉调用者还需不需要继续进行读取，因为题目要求里写了直到到达下一个非数字字符或到达输入的结尾，字符串的其余部分将被忽略，也就是说<code>StateEnd</code>无论给它什么输入<code>c</code>都会输出<code>StateEnd</code>，所以遇到了<code>StateEnd</code>就可以不用继续<code>Process</code>了。这样，我们主程序就可以这样调用：</p>
-<pre><code class="language-go">func myAtoi(s string) int {
-	atmt := NewAutomaton()
-	for i := range s {
-		if !atmt.Process(s[i]) {
-			break
-		}
-	}
-
-	return atmt.Res()
-}
-</code></pre>
-<p>我们目前还没有对<code>Automaton</code>进行实现，因此我们定义<code>automatonImpl</code>实现该接口。<code>automatonImpl</code>字段定义如下：</p>
-<pre><code class="language-go">type automatonImpl struct {
-	state  State // 状态
-	abs    int   // 读取的数字绝对值
-	signed int   // 符号
-	res    int32 // 读取的数字结果
-}
-</code></pre>
-<p>实现<code>Process</code>方法：</p>
-<pre><code class="language-go">func (a *automatonImpl) Process(c byte) bool {
-	a.state = a.state.Next(c) // 根据输入c更新自动机状态
-	switch a.state {
-	case StateSigned:
-        // 判定符号
-		if c == '-' {
-			a.signed = -1
-		} else {
-			a.signed = 1
-		}
-	case StateNumber:
-        // 更新读取数字的绝对值
-		a.abs = 10*a.abs + int(c-'0')
-        
-        // 由于题目要求返回的结果是32位的，所以这里要进行判断看看是否溢出，按照题目要求，如果溢出则要进行截断
-		tmp := a.abs * a.signed
-		if tmp &gt; math.MaxInt32 {
-			a.abs = math.MaxInt32
-		} else if tmp &lt; math.MinInt32 {
-			a.abs = -math.MinInt32
-		}
-		a.res = int32(a.abs * a.signed)
-	case StateEnd:
-        // 如果是StateEnd就通知调用者可以不用继续Process了
-		return false
-	default:
-	}
-
-	return true
-}
-
-func (a *automatonImpl) Res() int {
-	return int(a.res)
-}
-</code></pre>
-<p>最终，我们再写一个<code>NewAutomaton</code>函数用于初始化自动机，并返回：</p>
-<pre><code class="language-go">func NewAutomaton() Automaton {
-	return &amp;automatonImpl{
-		state:  StateStart, // 初始状态
-		abs:    0,
-		signed: 1,
-	}
-}
-</code></pre>
-<p>这样一来，我们的代码就没那么臃肿了，而且有着良好的扩展性、抽象性。最后点击提交，完美！</p>
-<p><img src="/images/Leetcode/8/allpass.png" alt="allpass"></p>
+<p>如果当前桶存满了以后，检查<code>hmap.extra.nextoverflow</code>还有可用的溢出桶，就在这个桶后面链上这个溢出桶，然后继续往这个溢出桶里存。而<code>hmap.extra.nextoverflow</code>继续指向下一个空闲的溢出桶：</p>
+<p><img src="/images/Golang/go-map/overflow.png" alt="overflow"></p>
+<h2 id="map扩容">Map扩容</h2>
+<p>Map的扩容分为<strong>翻倍扩容</strong>和<strong>等量扩容</strong>。</p>
+<h3 id="翻倍扩容">翻倍扩容</h3>
+<p>当当前Map的键值对数量和桶数量的比值超过负载因子（默认6.5）的时候，就会触发Map的翻倍扩容，会在内存中分配相较于旧桶数量两倍的新桶。如果此时简单粗暴地将旧桶中数据完整拷贝到新桶中，那么势必会带来性能上的明显抖动，因此Go采用了更柔和的一种方式：<strong>渐进式扩容</strong>。</p>
+<p>将<code>hmap.oldbuckets</code>指向旧桶、<code>hmap.buckets</code>指向新桶、<code>hmap.nevacuate</code>赋值0表示接下来要迁移的是0号旧桶。接下来就采用渐进式扩容的方式，在每次读写当前Map时通过判断<code>hmap.oldbuckets != nil</code>来确定当前Map处于迁移状态中，然后执行一次迁移操作：将<code>hmap.nevacuate</code>表示的旧桶迁移到新桶。</p>
+<p><img src="/images/Golang/go-map/grow.png" alt="grow"></p>
+<p>当一个旧桶中的键值对被迁移到新桶的过程中，这个旧桶中的键值对会被分流到两个新桶中去，为什么呢？</p>
+<p>假设旧桶的数量是<code>m=4</code>，那翻倍扩容的新桶数量是<code>2m=8</code>，如果一个键经过哈希后选择0号旧桶，即<code>hash &amp; (m - 1) == 0</code>，那么它的哈希值低2位一定是0：<code>xxxxxx00 &amp; 00000011 == 00000000</code>。进而对于新桶，该键经哈希后选择的新桶，也就是<code>hash &amp; (2m - 1) == xxxxxb00 &amp; 00000111</code>的结果就取决于哈希值第三位<code>b</code>的取值了，如果<code>b=1</code>那么该键就会选择4号桶，否则选择0号桶。又因为桶的数量永远是2的整数次幂，所以每次翻倍扩容旧桶的键值对都会按照这样的规律被这样分流到新桶中去。</p>
+<h3 id="等量扩容">等量扩容</h3>
+<p>如果没有超过负载因子，使用溢出桶太多也会触发扩容，但是触发的是等量扩容。等量扩容就是新桶的数量和旧桶数量一致。</p>
+<p>于是就有这样的问题了：</p>
+<ul>
+<li>用了多少溢出桶算多？</li>
+<li>既然新桶数量和旧桶数量一致，那何苦迁移来迁移去呢？</li>
+</ul>
+<p>首先看第一个问题，Go语言中对于触发等量扩容的溢出桶数量标准是：</p>
+<ul>
+<li>如果常规桶数目不大于2^15，那么使用的溢出桶数目超过常规桶就算是多了；</li>
+<li>如果常规桶数目大于2^15，那么使用溢出桶数目一旦超过2^15就算多了。</li>
+</ul>
+<p>再看第二个问题，触发等量扩容时候的情况实际上是Map中键值对数量与桶数量比值比较低，没有超过负载因子，可又使用的溢出桶特别多。这种情况只有可能是键值对被删除了很多，导致桶中的键值对数据排列的很稀疏。这时候分配一样数量的新桶，键值对虽然不会因此被分配到别的编号的新桶，但是会让桶中的键值对排列地更紧凑，进而使得Map所占空间变小。</p>
+<h2 id="总结">总结</h2>
+<p>以上就是对Go语言中Map底层实现的讲解，这时再想想当写Go代码时，如果我们对Map元素进行取地址操作时编译器会报错，就能解释得通了，因为Map中的键值对会因为迁移而自动改变地址。</p>
 
 </article>
 
@@ -408,16 +353,11 @@ func (a *automatonImpl) Res() int {
   >
     <div>
       
-        <span class="text-primary-text block font-bold"
-          >上一页</span
-        >
-        <a href="/posts/golang/go_map/" class="block">「Go系列」Map类型深入学习</a>
-      
     </div>
     <div class="mt-4 md:mt-0 md:text-right">
       
         <span class="text-primary-text block font-bold">下一页</span>
-        <a href="/posts/golang/go_interface/" class="block">「Go系列」interface是如何实现的？</a>
+        <a href="/posts/leetcode/leetcode_8/" class="block">「力扣刷题」8.字符串转换整数 (atoi)</a>
       
     </div>
   </div>
