@@ -2,11 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>/posts/golang/go_map/</loc>
-    <lastmod>2022-08-14T19:13:05+08:00</lastmod>
+    <loc>/posts/interviews/go_select/</loc>
+    <lastmod>2024-09-22T12:00:00+08:00</lastmod>
   </url><url>
     <loc>/</loc>
-    <lastmod>2022-08-14T19:13:05+08:00</lastmod>
+    <lastmod>2024-09-22T12:00:00+08:00</lastmod>
     <xhtml:link
                 rel="alternate"
                 hreflang="en"
@@ -19,7 +19,37 @@
                 />
   </url><url>
     <loc>/posts/</loc>
-    <lastmod>2022-08-14T19:13:05+08:00</lastmod>
+    <lastmod>2024-09-22T12:00:00+08:00</lastmod>
+  </url><url>
+    <loc>/posts/golang/go_sched/</loc>
+    <lastmod>2024-05-20T20:13:00+08:00</lastmod>
+  </url><url>
+    <loc>/posts/golang/go_resilient/</loc>
+    <lastmod>2024-04-02T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>/posts/golang/go_cond/</loc>
+    <lastmod>2024-03-10T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>/posts/chunwan/</loc>
+    <lastmod>2024-02-10T12:00:00+08:00</lastmod>
+  </url><url>
+    <loc>/posts/golang/go_errgroup/</loc>
+    <lastmod>2023-12-17T20:00:00+08:00</lastmod>
+  </url><url>
+    <loc>/posts/golang/go_once/</loc>
+    <lastmod>2023-10-03T20:00:00+08:00</lastmod>
+  </url><url>
+    <loc>/posts/golang/go_copycheck/</loc>
+    <lastmod>2023-09-22T20:13:00+08:00</lastmod>
+  </url><url>
+    <loc>/posts/golang/go_vuln/</loc>
+    <lastmod>2023-07-08T10:30:06+08:00</lastmod>
+  </url><url>
+    <loc>/posts/proto_varint/</loc>
+    <lastmod>2023-04-12T20:20:05+08:00</lastmod>
+  </url><url>
+    <loc>/posts/golang/go_map/</loc>
+    <lastmod>2022-11-14T19:13:05+08:00</lastmod>
   </url><url>
     <loc>/posts/leetcode/leetcode_8/</loc>
     <lastmod>2022-08-03T23:34:09+08:00</lastmod>

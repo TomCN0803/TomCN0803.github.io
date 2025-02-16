@@ -87,21 +87,15 @@
     "itemListElement":[{
             "@type":"ListItem",
             "position":  1 ,
-            "name": "「Go系列」如何让Go同步原语sync.Once变得更好用？",
-            "description": "sync.Once是 Go 语言在标准库中所提供的一个同步原语，其早在 Go 的首个稳定版本go1中就存在于标准库sync包内了。sync.Once所提供的Do方",
-            "url": "/posts/golang/go_once/"
+            "name": "「Go系列」interface是如何实现的？",
+            "description": "Go语言提供interface类型作为接口类型，声明interface时候会把其方法定义在一起，任何其他类型只要实现了这些方法就是实现了这个接口。不同",
+            "url": "/posts/golang/go_interface/"
         },{
             "@type":"ListItem",
             "position":  2 ,
-            "name": "「Go系列」代码运行时类型复制检查器copyChecker的实现",
-            "description": "今天在翻看 Golang sync 包源码时发现了一个以前从来没有仔细看过的代码实现——代码运行时类型复制检查器copyCheker，它的作用是可以在 Go 代码运行时，检测一个",
-            "url": "/posts/golang/go_copycheck/"
-        },{
-            "@type":"ListItem",
-            "position":  3 ,
-            "name": "「Go系列」漏洞管理体系以及 govulncheck 漏洞检测工具介绍",
-            "description": "体系概览 Golang官方提供了一套比较完整的漏洞管理体系，可以帮助开发人员检测、评估和解决可能被攻击者利用的错误和漏洞。该体系的底层架构主要分为如图所",
-            "url": "/posts/golang/go_vuln/"
+            "name": "「Go系列」浅探一下Go语言的类型系统",
+            "description": "Go语言是强类型语言，编译器在编译阶段会给代码中每一种类型生成对应的类型描述信息并写入到二进制可执行文件中，这些类型描述信息就被称为“类型元数据”。 G",
+            "url": "/posts/golang/go_type_system/"
         }
     ]
 }
@@ -230,11 +224,11 @@
   
   <div class="w-full ">
     <div class="prose">
-  <a href="/posts/golang/go_once/" class="no-underline">
-    <h3 class="mt-0">「Go系列」如何让Go同步原语sync.Once变得更好用？</h3>
+  <a href="/posts/golang/go_interface/" class="no-underline">
+    <h3 class="mt-0">「Go系列」interface是如何实现的？</h3>
   </a>
   
-    sync.Once是 Go 语言在标准库中所提供的一个同步原语，其早在 Go 的首个稳定版本go1中就存在于标准库sync包内了。sync.Once所提供的Do方
+    Go语言提供interface类型作为接口类型，声明interface时候会把其方法定义在一起，任何其他类型只要实现了这些方法就是实现了这个接口。不同
   
 
   
@@ -244,12 +238,12 @@
   <div class="me-6 my-2">
     <i class="fas fa-calendar me-1"></i>
     <span
-      >2023-10-03</span
+      >2022-07-22</span
     >
   </div>
   <div class="me-6 my-2">
     <i class="fas fa-clock me-1"></i>
-    <span>10分钟阅读时长</span>
+    <span>4分钟阅读时长</span>
   </div>
 
   
@@ -271,11 +265,11 @@
   
   <div class="w-full ">
     <div class="prose">
-  <a href="/posts/golang/go_copycheck/" class="no-underline">
-    <h3 class="mt-0">「Go系列」代码运行时类型复制检查器copyChecker的实现</h3>
+  <a href="/posts/golang/go_type_system/" class="no-underline">
+    <h3 class="mt-0">「Go系列」浅探一下Go语言的类型系统</h3>
   </a>
   
-    今天在翻看 Golang sync 包源码时发现了一个以前从来没有仔细看过的代码实现——代码运行时类型复制检查器copyCheker，它的作用是可以在 Go 代码运行时，检测一个
+    Go语言是强类型语言，编译器在编译阶段会给代码中每一种类型生成对应的类型描述信息并写入到二进制可执行文件中，这些类型描述信息就被称为“类型元数据”。 G
   
 
   
@@ -285,48 +279,7 @@
   <div class="me-6 my-2">
     <i class="fas fa-calendar me-1"></i>
     <span
-      >2023-09-22</span
-    >
-  </div>
-  <div class="me-6 my-2">
-    <i class="fas fa-clock me-1"></i>
-    <span>6分钟阅读时长</span>
-  </div>
-
-  
-
-  
-</div>
-
-  
-</div>
-
-  </div>
-
-  
-</div>
-  </div>
-  
-  <div class="py-6">
-    <div class="flex flex-col-reverse lg:flex-row justify-between">
-  
-  <div class="w-full ">
-    <div class="prose">
-  <a href="/posts/golang/go_vuln/" class="no-underline">
-    <h3 class="mt-0">「Go系列」漏洞管理体系以及 govulncheck 漏洞检测工具介绍</h3>
-  </a>
-  
-    体系概览 Golang官方提供了一套比较完整的漏洞管理体系，可以帮助开发人员检测、评估和解决可能被攻击者利用的错误和漏洞。该体系的底层架构主要分为如图所
-  
-
-  
-    <div
-  class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
->
-  <div class="me-6 my-2">
-    <i class="fas fa-calendar me-1"></i>
-    <span
-      >2023-07-08</span
+      >2022-07-08</span
     >
   </div>
   <div class="me-6 my-2">
@@ -358,7 +311,7 @@
         <a href="/posts/" aria-label="First" class="page-link" role="button"><span aria-hidden="true">&laquo;&laquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/posts/page/2/" aria-label="Previous" class="page-link" role="button"><span aria-hidden="true">&laquo;</span></a>
+        <a href="/posts/page/4/" aria-label="Previous" class="page-link" role="button"><span aria-hidden="true">&laquo;</span></a>
       </li>
       <li class="page-item">
         <a href="/posts/" aria-label="Page 1" class="page-link" role="button">1</a>
@@ -366,20 +319,20 @@
       <li class="page-item">
         <a href="/posts/page/2/" aria-label="Page 2" class="page-link" role="button">2</a>
       </li>
-      <li class="page-item active">
-        <a aria-current="page" aria-label="Page 3" class="page-link" role="button">3</a>
+      <li class="page-item">
+        <a href="/posts/page/3/" aria-label="Page 3" class="page-link" role="button">3</a>
       </li>
       <li class="page-item">
         <a href="/posts/page/4/" aria-label="Page 4" class="page-link" role="button">4</a>
       </li>
-      <li class="page-item">
-        <a href="/posts/page/5/" aria-label="Page 5" class="page-link" role="button">5</a>
+      <li class="page-item active">
+        <a aria-current="page" aria-label="Page 5" class="page-link" role="button">5</a>
       </li>
-      <li class="page-item">
-        <a href="/posts/page/4/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
+      <li class="page-item disabled">
+        <a aria-disabled="true" aria-label="Next" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&raquo;</span></a>
       </li>
-      <li class="page-item">
-        <a href="/posts/page/5/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
+      <li class="page-item disabled">
+        <a aria-disabled="true" aria-label="Last" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul>
 

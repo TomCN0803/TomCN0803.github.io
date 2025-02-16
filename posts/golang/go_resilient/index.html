@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html
+  lang="zh"
+  dir="ltr"
+  
+><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<title>「Go系列」系统弹力设计之断路器的实现 | Tom&#39;s Blog</title>
+
+<meta name="generator" content="Hugo Eureka 0.9.3" />
+<link rel="stylesheet" href="/css/eureka.min.9cec6350e37e534b0338fa9a085bf06855de3b0f2dcf857e792e5e97b07ea905d4d5513db554cbc26a9c3da622bae92d.css">
+<script defer src="/js/eureka.min.fa9a6bf6d7a50bb635b4cca7d2ba5cf3dfb095ae3798773f1328f7950028b48c17d06276594e1b5f244a25a6c969a705.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload"
+  href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&amp;family=Noto&#43;Serif&#43;SC:wght@400;600;700&amp;display=swap"
+  as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.4.0/build/styles/base16/solarized-light.min.css"
+   media="print"
+  onload="this.media='all';this.onload=null" crossorigin>
+<script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.4.0/build/highlight.min.js"
+   crossorigin></script>
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.4.0/build/languages/dart.min.js"
+     crossorigin></script>
+<link rel="stylesheet" href="/css/highlightjs.min.2958991528e43eb6fc9b8c4f2b8e052f79c4010718e1d1e888a777620e9ee63021c2c57ec7417a3108019bb8c41943e6.css" media="print" onload="this.media='all';this.onload=null">
+
+
+<script defer type="text/javascript" src="/js/fontawesome.min.2a238597616760e3d50e3d131b417d804ba779c0b2b51638945f9c61b3f666f2b6fcacb11bfe9efe86d4f4e4f44534a7.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"
+   integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ"  media="print"
+  onload="this.media='all';this.onload=null" crossorigin>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js" 
+  integrity="sha384-VQ8d8WVFw0yHhCk5E8I86oOhv48xLpnDZx5T9GogA/Y84DcCKWXDmSDfn13bzFZY"  crossorigin></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js"
+   integrity="sha384-&#43;XBljXPPiv&#43;OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR"  crossorigin></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false },
+        { left: "\\(", right: "\\)", display: false },
+        { left: "\\[", right: "\\]", display: true }
+      ],
+    });
+  });
+</script>
+
+
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@8.14.0/dist/mermaid.min.js" 
+  integrity="sha384-atOyb0FxAgN9LyAc6PEf9BjgwLISyansgdH8/VXQH8p2o5vfrRgmGIJ2Sg22L0A0"  crossorigin></script>
+
+
+<link rel="icon" type="image/png" sizes="32x32" href="/images/icon_hu64421c6c7700f606f0ad45d807017b09_5843_32x32_fill_box_center_3.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/icon_hu64421c6c7700f606f0ad45d807017b09_5843_180x180_fill_box_center_3.png">
+
+<meta name="description"
+  content="什么是断路器？ 断路器（circuit-breaker）是软件系统弹力设计中常用的故障保护机制，提高软件系统的容错能力。断路器的工作方式类似于我们生活中">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1 ,
+      "name":"文章",
+      "item":"/posts/"},{
+      "@type": "ListItem",
+      "position": 2 ,
+      "name":"「Go系列」系统弹力设计之断路器的实现",
+      "item":"/posts/golang/go_resilient/"}]
+}
+</script>
+
+
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "/posts/golang/go_resilient/"
+    },
+    "headline": "「Go系列」系统弹力设计之断路器的实现 | Tom\u0027s Blog","datePublished": "2024-04-02T10:00:00+08:00",
+    "dateModified": "2024-04-02T10:00:00+08:00",
+    "wordCount":  4030 ,
+    "publisher": {
+        "@type": "Person",
+        "name": "WANG Chucheng",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "/images/icon.png"
+        }
+        },
+    "description": "什么是断路器？ 断路器（circuit-breaker）是软件系统弹力设计中常用的故障保护机制，提高软件系统的容错能力。断路器的工作方式类似于我们生活中"
+}
+</script><meta property="og:title" content="「Go系列」系统弹力设计之断路器的实现 | Tom&#39;s Blog" />
+<meta property="og:type" content="article" />
+
+
+<meta property="og:image" content="/images/icon.png">
+
+
+<meta property="og:url" content="/posts/golang/go_resilient/" />
+
+
+
+
+<meta property="og:description" content="什么是断路器？ 断路器（circuit-breaker）是软件系统弹力设计中常用的故障保护机制，提高软件系统的容错能力。断路器的工作方式类似于我们生活中" />
+
+
+
+
+<meta property="og:locale" content="zh" />
+
+
+
+
+<meta property="og:site_name" content="Tom&#39;s Blog" />
+
+
+
+
+
+
+<meta property="article:published_time" content="2024-04-02T10:00:00&#43;08:00" />
+
+
+<meta property="article:modified_time" content="2024-04-02T10:00:00&#43;08:00" />
+
+
+
+<meta property="article:section" content="posts" />
+
+
+
+
+
+  <body class="flex min-h-screen flex-col">
+    <header
+      class="min-h-16 pl-scrollbar bg-secondary-bg fixed z-50 flex w-full items-center shadow-sm"
+    >
+      <div class="mx-auto w-full max-w-screen-xl"><script>
+    let storageColorScheme = localStorage.getItem("lightDarkMode")
+    if (((storageColorScheme == 'Auto' || storageColorScheme == null) && window.matchMedia("(prefers-color-scheme: dark)").matches) || storageColorScheme == "Dark") {
+        document.getElementsByTagName('html')[0].classList.add('dark')
+    }
+</script>
+<nav class="flex items-center justify-between flex-wrap px-4 py-4 md:py-0">
+    <a href="/" class="me-6 text-primary-text text-xl font-bold">Tom&#39;s Blog</a>
+    <button id="navbar-btn" class="md:hidden flex items-center px-3 py-2" aria-label="Open Navbar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div id="target"
+        class="hidden block md:flex md:grow md:justify-between md:items-center w-full md:w-auto text-primary-text z-20">
+        <div class="md:flex md:h-16 text-sm md:grow pb-4 md:pb-0 border-b md:border-b-0">
+            <a href="/#about" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  border-transparent  me-4">关于我</a>
+            <a href="/posts/" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  selected-menu-item  me-4">文章</a>
+        </div>
+
+        <div class="flex">
+            <div class="relative pt-4 md:pt-0">
+                <div class="cursor-pointer hover:text-eureka" id="lightDarkMode">
+                    <i class="fas fa-adjust"></i>
+                </div>
+                <div class="fixed hidden inset-0 opacity-0 h-full w-full cursor-default z-30" id="is-open">
+                </div>
+                <div class="absolute flex flex-col start-0 md:start-auto end-auto md:end-0 hidden bg-secondary-bg w-48 rounded py-2 border border-tertiary-bg cursor-pointer z-40"
+                    id='lightDarkOptions'>
+                    <span class="px-4 py-1 hover:text-eureka" name="Light">浅色</span>
+                    <span class="px-4 py-1 hover:text-eureka" name="Dark">深色</span>
+                    <span class="px-4 py-1 hover:text-eureka" name="Auto">自动</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed hidden inset-0 opacity-0 h-full w-full cursor-default z-0" id="is-open-mobile">
+    </div>
+
+</nav>
+<script>
+    
+    let element = document.getElementById('lightDarkMode')
+    if (storageColorScheme == null || storageColorScheme == 'Auto') {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.matchMedia("(prefers-color-scheme: dark)").addEventListener('change', switchDarkMode)
+        })
+    } else if (storageColorScheme == "Light") {
+        element.firstElementChild.classList.remove('fa-adjust')
+        element.firstElementChild.setAttribute("data-icon", 'sun')
+        element.firstElementChild.classList.add('fa-sun')
+    } else if (storageColorScheme == "Dark") {
+        element.firstElementChild.classList.remove('fa-adjust')
+        element.firstElementChild.setAttribute("data-icon", 'moon')
+        element.firstElementChild.classList.add('fa-moon')
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        getcolorscheme();
+        switchBurger();
+    });
+</script>
+</div>
+    </header>
+    <main class="grow pt-16">
+        <div class="pl-scrollbar">
+          <div class="mx-auto w-full max-w-screen-xl lg:px-4 xl:px-8">
+  
+  
+  <div class="grid grid-cols-2 gap-4 lg:grid-cols-8 lg:pt-12">
+    <div
+      class="lg:col-start-2 bg-secondary-bg col-span-2 rounded px-6 py-8 lg:col-span-6"
+    >
+      <article class="prose">
+  <h1 class="mb-4">「Go系列」系统弹力设计之断路器的实现</h1>
+
+  <div
+  class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
+>
+  <div class="me-6 my-2">
+    <i class="fas fa-calendar me-1"></i>
+    <span
+      >2024-04-02</span
+    >
+  </div>
+  <div class="me-6 my-2">
+    <i class="fas fa-clock me-1"></i>
+    <span>9分钟阅读时长</span>
+  </div>
+
+  
+
+  
+</div>
+
+
+  
+  
+
+  <h2 id="什么是断路器">什么是断路器？</h2>
+<p>断路器（circuit-breaker）是软件系统弹力设计中常用的故障保护机制，提高软件系统的容错能力。断路器的工作方式类似于我们生活中所接触到的电路断路器，或者说是电闸上的“保险丝”，当电路出现问题（如短路）时会自动跳闸，保险丝会“熔断”，这时电路断开，可以起到保护电路上电器的作用，否则轻则导致电器烧坏，重则引发火灾，因此在电路的设计中，断路器这种自我保护装置可以说是不可或缺的。</p>
+<p>同样，在计算机的场景中，一个服务可能会发生故障，当故障的严重程度达到某一阈值时，断路器会自动打开，以阻止对该服务的进一步调用，并直接返回一个预先设定好的错误响应，进而避免故障的加剧与扩散，提高系统的容错能力。</p>
+<p>断路器同时还需要具备自我修复的能力。当故障发生一段时间后，断路器会尝试关闭，重新恢复对服务的调用，如果调用恢复正常，则断路器会关闭，否则继续打开，直到服务恢复正常。这就类似于我们生活中的电闸，当电路故障排除后，可以手动合闸，尝试恢复电路的通电状态。</p>
+<p>断路器一般存在三种状态：闭合（closed）、断开（open）与半开（half-open），这与电路中的术语就很类似。断路器处于闭合状态时，服务正常，用户请求正常执行，断路器将不会对请求进行拦截；当客户请求因故障导致失败，且失败次数达到一定阈值时，断路器会自动打开并进入断开状态，此时断路器会拦截所有用户请求，并返回预先设定好的错误响应；断路器不可能永远处于断开状态，在一段时间后，断路器会尝试关闭，进入半开状态，重新尝试处理用户请求。如果请求处理成功的次数或比率达到一定阈值，则认为服务已经恢复正常，断路器会进入闭合状态，否则继续保持断开。</p>
+<h2 id="使用-go-语言实现断路器">使用 Go 语言实现断路器</h2>
+<p>本文将以 Go 语言开源项目<a href="https://www.github.com/eapache/go-resiliency" title="go-resiliency">go-resiliency</a>中的断路器实现为例，介绍使用 Go 语言的断路器代码设计与实现。go-resiliency 项目中的断路器实现位于<code>breaker</code>包中，其实现了一个精炼好用的断路器，知名开源 Go 语言 Apache Kafka 客户端<a href="https://github.com/IBM/sarama" title="sarama">sarama</a>项目中就依赖了 go-resiliency 中所实现的断路器。</p>
+<h3 id="断路器的基础使用">断路器的基础使用</h3>
+<p>go-resiliency 的断路器提供了一个<code>New</code>方法用于初始化一个断路器（<code>breaker.Breaker</code>类型）实例：</p>
+<pre><code class="language-go">func New(errorThreshold, successThreshold int, timeout time.Duration) *Breaker
+</code></pre>
+<p>输入参数分别为：</p>
+<ul>
+<li><code>errorThreshold</code>：错误阈值，当<code>timeout</code>时间内连续发生错误的次数达到该阈值时，断路器会从闭合状态转为断开状态；</li>
+<li><code>successThreshold</code>：成功阈值，当处于半开状态的断路器连续成功处理请求的次数达到该阈值时，断路器会重新闭合；</li>
+<li><code>timeout</code>：超时时间，断路器在超时时间内连续发生错误的次数达到<code>errorThreshold</code>时，会从闭合状态转为断开状态；同时该超时时间也是断路器断开状态下的持续时间，当到期后，断路器会变为半开状态。</li>
+</ul>
+<p>随后我们可以通过 <code>breaker</code> 实例的 <code>Run</code> 方法来执行需要断路保护的目标代码块。<code>Run</code>方法所接收的目标函数类型为<code>func() error</code>，即执行完后会返回一个<code>error</code>，如果执行成功返回的就是<code>nil</code>。下面我们来看一个简单的 demo：</p>
+<pre><code class="language-go">func main() {
+    cnt := 0
+    work := func() error {
+        if cnt++; cnt &gt;= 3 {
+            // 模拟从第三次调用开始出错
+            return errors.New(&quot;work got an error&quot;)
+        }
+        return nil
+    }
+
+    b := breaker.New(5, 1, 5*time.Second)
+    for range 10 {
+        switch err := b.Run(work); err {
+        case nil:
+            fmt.Println(&quot;work success!&quot;)
+        case breaker.ErrBreakerOpen:
+            fmt.Println(err.Error())
+        default:
+            fmt.Println(&quot;got some other error:&quot;, err.Error())
+        }
+    }
+}
+</code></pre>
+<p>上述代码中，我们定义了一个<code>work</code>函数，该函数会模拟从第 3 次调用开始出错。我们初始化了一个断路器<code>Breaker</code>类型实例<code>b</code>，通过<code>b</code>进行 10 次<code>work</code>的调用。我们通过<code>b.Run(work)</code>将<code>work</code>作为断路器保护的代码块执行，当<code>work</code>执行成功时，<code>b.Run</code>会返回<code>nil</code>；前 5 次<code>work</code>出错将会返回<code>work</code>的错误；第 6 次出错开始，<code>b.Run</code>会直接返回预先定义的错误<code>breaker.ErrBreakerOpen</code>，表示断路器已经打开：</p>
+<pre><code class="language-go">var ErrBreakerOpen = errors.New(&quot;circuit breaker is open&quot;)
+</code></pre>
+<p>以上的代码运行输出为：</p>
+<pre><code class="language-shell">work success!
+work success!
+got some other error: work got an error
+got some other error: work got an error
+got some other error: work got an error
+got some other error: work got an error
+got some other error: work got an error
+circuit breaker is open
+circuit breaker is open
+circuit breaker is open
+</code></pre>
+<h3 id="断路器源码走读">断路器源码走读</h3>
+<p>我们在本节来看下断路器是如何实现的。在 go-resiliency 中，断路器的结构体类型定义如下：</p>
+<pre><code class="language-go">type Breaker struct {
+    errorThreshold, successThreshold int
+    timeout                          time.Duration
+
+    lock              sync.Mutex
+    state             State
+    errors, successes int
+    lastError         time.Time
+}
+</code></pre>
+<ul>
+<li>
+<p><code>errorThreshold</code>，<code>successThreshold</code>，<code>timeout</code>：断路器的错误阈值、成功阈值、超时时间。这与上文提到的<code>New</code>方法的传参定义是一模一样的，这三个属性也正是通过<code>New</code>方法进行初始化的；</p>
+</li>
+<li>
+<p><code>lock</code>：断路器用到的互斥锁，用于在并发场景下保护断路器的内部状态；</p>
+</li>
+<li>
+<p><code>state</code>：断路器的状态，是<code>breaker.State</code>类型（定义见下文）。有三种取值分别对应上文所说断路器的三种状态：<code>Closed</code>（闭合）、<code>Open</code>（断开）和<code>HalfOpen</code>（半开）；</p>
+</li>
+<li>
+<p><code>errors</code>，<code>successes</code>：断路器内部记录的一段时间内错误次数和成功次数；</p>
+</li>
+<li>
+<p><code>lastError</code>：最后一次发生错误的时间。</p>
+</li>
+</ul>
+<p>断路器的状态<code>State</code>的定义如下，底层类型为<code>uint32</code>：</p>
+<pre><code class="language-go">type State uint32
+
+const (
+    Closed State = iota
+    Open
+    HalfOpen
+)
+</code></pre>
+<p>有了上述字段定义，断路器的初始化方法<code>New</code>很好理解，实际上就是初始化了<code>errorThreshold</code>、<code>successThreshold</code>和<code>timeout</code>：</p>
+<pre><code class="language-go">func New(errorThreshold, successThreshold int, timeout time.Duration) *Breaker {
+    return &amp;Breaker{
+        errorThreshold:   errorThreshold,
+        successThreshold: successThreshold,
+        timeout:          timeout,
+    }
+}
+</code></pre>
+<p><code>Breaker</code>的<code>Run</code>方法是断路器的核心方法，用于执行需要断路保护的代码块，逻辑很精简，可以被编译器进行内联优化：</p>
+<pre><code class="language-go">func (b *Breaker) Run(work func() error) error {
+    state := b.GetState()
+
+    if state == Open {
+        return ErrBreakerOpen
+    }
+
+    return b.doWork(state, work)
+}
+</code></pre>
+<p><code>Run</code>方法首先通过<code>GetState</code>方法获取当前断路器的状态，当断路器处于断开状态（<code>Open</code>）时，目标服务是不可以被调用的，属于 Fast Path，直接返回<code>ErrBreakerOpen</code>错误；如果为其它两种状态，需要稍微复杂一些的处理逻辑，则走 Slow Path，调用<code>doWork</code>方法执行目标服务的代码块。</p>
+<p>获取断路器状态的<code>GetState</code>方法实现如下，使用的是原子<code>Load</code>操作以保证并发调用时的安全，读取了<code>state</code>字段当前的值：</p>
+<pre><code class="language-go">func (b *Breaker) GetState() State {
+    return (State)(atomic.LoadUint32((*uint32)(&amp;b.state)))
+}
+</code></pre>
+<blockquote>
+<p>这种 Fast Path 与 Slow Path 结合的设计可以简化方法逻辑，易于编译器进行内联优化以提高代码性能。在 Go 标准库中也有很多类似的例子，典型的如<code>sync.Mutex</code>的<code>Lock</code>方法、<code>sync.Once</code>的<code>Do</code>方法等。</p>
+</blockquote>
+<p>在<code>doWork</code>方法中，目标函数才真正被调用了，代码如下：</p>
+<pre><code class="language-go">func (b *Breaker) doWork(state State, work func() error) error {
+    var panicValue interface{}
+
+    // 执行目标函数，得到执行结果，以及捕获panic
+    result := func() error {
+        defer func() {
+            panicValue = recover()
+        }()
+        return work()
+    }()
+
+    if result == nil &amp;&amp; panicValue == nil &amp;&amp; state == Closed {
+        // 正常情况：目标函数执行正常，且断路器处于闭合状态，直接返回nil结果，也不用加锁
+        return nil
+    }
+
+    // 处理目标函数执行结果以更新断路器内部状态，这段逻辑会加锁
+    b.processResult(result, panicValue)
+
+    if panicValue != nil {
+        panic(panicValue)
+    }
+
+    return result
+}
+</code></pre>
+<p><code>doWork</code>会在一个匿名函数中执行目标函数<code>work</code>，得到目标函数返回的<code>result</code>（其实就是个<code>error</code>），以及如果目标函数 panic 了，也会通过<code>recover</code>捕获到 panic，赋值给<code>panicValue</code>。然后判断<code>result</code>和<code>panicValue</code>若为空，即代表目标函数正常执行，且当前断路器处于闭合状态时，直接返回<code>nil</code>结果，也不用去竞争锁。这是属于大多数的正常情况，也就是目标服务正常且断路器也没断开情况下的调用逻辑。</p>
+<p>而当不满足上述正常情况时，就会走到<code>processResult</code>方法中，这个方法会处理目标函数执行结果以更新断路器内部状态，且在<code>processResult</code>方法中会加锁。之后如果<code>panicValue</code>不为空，还会主动触发一次 panic。</p>
+<p><code>processResult</code>方法的逻辑会稍微复杂些，代码实现如下：</p>
+<pre><code class="language-go">func (b *Breaker) processResult(result error, panicValue interface{}) {
+    b.lock.Lock()
+    defer b.lock.Unlock()
+
+    if result == nil &amp;&amp; panicValue == nil {
+        if b.state == HalfOpen {
+            b.successes++
+            if b.successes == b.successThreshold {
+                b.closeBreaker()
+            }
+        }
+    } else {
+        if b.errors &gt; 0 {
+            expiry := b.lastError.Add(b.timeout)
+            if time.Now().After(expiry) {
+                b.errors = 0
+            }
+        }
+
+        switch b.state {
+        case Closed:
+            b.errors++
+            if b.errors == b.errorThreshold {
+                b.openBreaker()
+            } else {
+                b.lastError = time.Now()
+            }
+        case HalfOpen:
+            b.openBreaker()
+        }
+    }
+}
+</code></pre>
+<p><code>processResult</code>方法首先会加锁，然后判断<code>result</code>和<code>panicValue</code>是否都为空，以判断目标函数是否是正常执行的：</p>
+<ul>
+<li>
+<p>如果是正常执行的，且当前断路器处于半开状态（<code>HalfOpen</code>），则会将<code>successes</code>加 1，若此时<code>successes</code>达到成功阈值<code>successThreshold</code>时，会调用<code>closeBreaker</code>方法关闭断路器；</p>
+</li>
+<li>
+<p>如果不是正常执行的，说明有错误产生，则先会看断路器所记录的错误次数<code>errors</code>是否大于 0，也就是之前是否已经有过错误发生。如果有过错误发生，会判断当前时间是否已经超过了设定的超时时间<code>timeout</code>，如果超时了，则会将<code>errors</code>重置为 0。随后根据当前断路器的状态，分别处理闭合状态和半开状态的情况：</p>
+<ul>
+<li>当断路器处于闭合状态时，会将<code>errors</code>加 1，若此时<code>errors</code>已经达到错误阈值<code>errorThreshold</code>，会调用<code>openBreaker</code>方法断开断路器，否则将当前时间赋值给<code>lastError</code>，以记录最后一次发生错误的时间，而先不去断开断路器；</li>
+<li>当断路器处于半开状态时，按照断路器的工作特点，会直接调用<code>openBreaker</code>方法断开断路器。</li>
+</ul>
+</li>
+</ul>
+<p>我们再来看下<code>processResult</code>方法所用来断开和闭合断路器的<code>openBreaker</code>和<code>closeBreaker</code>方法的实现：</p>
+<pre><code class="language-go">func (b *Breaker) openBreaker() {
+    b.changeState(Open)
+    go b.timer()
+}
+
+func (b *Breaker) closeBreaker() {
+    b.changeState(Closed)
+}
+
+func (b *Breaker) timer() {
+    time.Sleep(b.timeout)
+
+    b.lock.Lock()
+    defer b.lock.Unlock()
+
+    b.changeState(HalfOpen)
+}
+
+func (b *Breaker) changeState(newState State) {
+    b.errors = 0
+    b.successes = 0
+    atomic.StoreUint32((*uint32)(&amp;b.state), (uint32)(newState))
+}
+</code></pre>
+<p><code>openBreaker</code>和<code>closeBreaker</code>方法分别都使用了<code>changeState</code>方法来改变断路器的状态。在<code>changeState</code>方法中，会将<code>errors</code>和<code>successes</code>都重置为 0，然后通过原子<code>Store</code>操作将<code>state</code>字段的值更新为新的状态<code>newState</code>。<code>openBreaker</code>会多启动一个执行<code>timer</code>方法的协程，在这个协程中，会首先睡眠<code>timeout</code>时间，然后再次加锁，调用<code>changeState</code>方法将断路器状态更新为半开状态。</p>
+<p>以上就是 go-resiliency 实现断路器的几乎全部源码，通过上述源码走读，我们可以看到其断路器已经实现了断路器的基本功能，且是并发安全的。为了方便大家整理思路，这里给大家画了一张基于<code>go-resiliency</code>断路器的状态转移图，核心的工作原理基本上都能在这张状态转移图中体现。</p>
+<p><img src="https://files.mdnice.com/user/17908/68743d55-4493-4392-ad67-6e1de38be557.png" alt="go-resiliency断路器Breaker状态转移图"></p>
+
+</article>
+
+
+      
+
+      
+
+
+
+      
+
+      
+  <div
+    class="-mx-2 mt-4 flex flex-col border-t px-2 pt-4 md:flex-row md:justify-between"
+  >
+    <div>
+      
+        <span class="text-primary-text block font-bold"
+          >上一页</span
+        >
+        <a href="/posts/golang/go_sched/" class="block">「Go系列」面试必会！两张图讲清Go语言并发调度策略</a>
+      
+    </div>
+    <div class="mt-4 md:mt-0 md:text-right">
+      
+        <span class="text-primary-text block font-bold">下一页</span>
+        <a href="/posts/golang/go_cond/" class="block">「Go系列」被遗忘的并发原语——sync.Cond</a>
+      
+    </div>
+  </div>
+
+
+      
+
+
+
+    </div>
+    
+
+    
+    
+  </div>
+
+  
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        hljs.highlightAll();
+      });
+    </script>
+
+          </div>
+        </div>
+      
+    </main>
+    <footer class="pl-scrollbar">
+      <div class="mx-auto w-full max-w-screen-xl"><div class="text-center p-6 pin-b">
+    <p class="text-sm text-tertiary-text">&copy; 2021 <a href="https://www.wangchucheng.com/">WANG Chucheng</a> and <a href="https://www.ruiqima.com/">MA Ruiqi</a>
+ &middot;  Powered by the <a href="https://github.com/wangchucheng/hugo-eureka" class="hover:text-eureka">Eureka</a> theme for <a href="https://gohugo.io" class="hover:text-eureka">Hugo</a></p>
+</div></div>
+    </footer>
+  </body>
+</html>

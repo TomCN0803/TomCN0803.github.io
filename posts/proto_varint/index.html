@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html
+  lang="zh"
+  dir="ltr"
+  
+><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<title>带你掌握 Protobuf 中 Varint 原理以及代码实现 | Tom&#39;s Blog</title>
+
+<meta name="generator" content="Hugo Eureka 0.9.3" />
+<link rel="stylesheet" href="/css/eureka.min.9cec6350e37e534b0338fa9a085bf06855de3b0f2dcf857e792e5e97b07ea905d4d5513db554cbc26a9c3da622bae92d.css">
+<script defer src="/js/eureka.min.fa9a6bf6d7a50bb635b4cca7d2ba5cf3dfb095ae3798773f1328f7950028b48c17d06276594e1b5f244a25a6c969a705.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload"
+  href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&amp;family=Noto&#43;Serif&#43;SC:wght@400;600;700&amp;display=swap"
+  as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.4.0/build/styles/base16/solarized-light.min.css"
+   media="print"
+  onload="this.media='all';this.onload=null" crossorigin>
+<script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.4.0/build/highlight.min.js"
+   crossorigin></script>
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.4.0/build/languages/dart.min.js"
+     crossorigin></script>
+<link rel="stylesheet" href="/css/highlightjs.min.2958991528e43eb6fc9b8c4f2b8e052f79c4010718e1d1e888a777620e9ee63021c2c57ec7417a3108019bb8c41943e6.css" media="print" onload="this.media='all';this.onload=null">
+
+
+<script defer type="text/javascript" src="/js/fontawesome.min.2a238597616760e3d50e3d131b417d804ba779c0b2b51638945f9c61b3f666f2b6fcacb11bfe9efe86d4f4e4f44534a7.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"
+   integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ"  media="print"
+  onload="this.media='all';this.onload=null" crossorigin>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js" 
+  integrity="sha384-VQ8d8WVFw0yHhCk5E8I86oOhv48xLpnDZx5T9GogA/Y84DcCKWXDmSDfn13bzFZY"  crossorigin></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js"
+   integrity="sha384-&#43;XBljXPPiv&#43;OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR"  crossorigin></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false },
+        { left: "\\(", right: "\\)", display: false },
+        { left: "\\[", right: "\\]", display: true }
+      ],
+    });
+  });
+</script>
+
+
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@8.14.0/dist/mermaid.min.js" 
+  integrity="sha384-atOyb0FxAgN9LyAc6PEf9BjgwLISyansgdH8/VXQH8p2o5vfrRgmGIJ2Sg22L0A0"  crossorigin></script>
+
+
+<link rel="icon" type="image/png" sizes="32x32" href="/images/icon_hu64421c6c7700f606f0ad45d807017b09_5843_32x32_fill_box_center_3.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/icon_hu64421c6c7700f606f0ad45d807017b09_5843_180x180_fill_box_center_3.png">
+
+<meta name="description"
+  content="Varint简介 在我们使用gRPC框架进行服务间通信时，我们需要protobuf来定义服务接口和消息格式。 在进行整数类型数据的传输时，除了定长的fix">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1 ,
+      "name":"文章",
+      "item":"/posts/"},{
+      "@type": "ListItem",
+      "position": 2 ,
+      "name":"带你掌握 Protobuf 中 Varint 原理以及代码实现",
+      "item":"/posts/proto_varint/"}]
+}
+</script>
+
+
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "/posts/proto_varint/"
+    },
+    "headline": "带你掌握 Protobuf 中 Varint 原理以及代码实现 | Tom\u0027s Blog","datePublished": "2023-04-12T20:20:05+08:00",
+    "dateModified": "2023-04-12T20:20:05+08:00",
+    "wordCount":  9330 ,
+    "publisher": {
+        "@type": "Person",
+        "name": "WANG Chucheng",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "/images/icon.png"
+        }
+        },
+    "description": "Varint简介 在我们使用gRPC框架进行服务间通信时，我们需要protobuf来定义服务接口和消息格式。 在进行整数类型数据的传输时，除了定长的fix"
+}
+</script><meta property="og:title" content="带你掌握 Protobuf 中 Varint 原理以及代码实现 | Tom&#39;s Blog" />
+<meta property="og:type" content="article" />
+
+
+<meta property="og:image" content="/images/icon.png">
+
+
+<meta property="og:url" content="/posts/proto_varint/" />
+
+
+
+
+<meta property="og:description" content="Varint简介 在我们使用gRPC框架进行服务间通信时，我们需要protobuf来定义服务接口和消息格式。 在进行整数类型数据的传输时，除了定长的fix" />
+
+
+
+
+<meta property="og:locale" content="zh" />
+
+
+
+
+<meta property="og:site_name" content="Tom&#39;s Blog" />
+
+
+
+
+
+
+<meta property="article:published_time" content="2023-04-12T20:20:05&#43;08:00" />
+
+
+<meta property="article:modified_time" content="2023-04-12T20:20:05&#43;08:00" />
+
+
+
+<meta property="article:section" content="posts" />
+
+
+
+
+
+  <body class="flex min-h-screen flex-col">
+    <header
+      class="min-h-16 pl-scrollbar bg-secondary-bg fixed z-50 flex w-full items-center shadow-sm"
+    >
+      <div class="mx-auto w-full max-w-screen-xl"><script>
+    let storageColorScheme = localStorage.getItem("lightDarkMode")
+    if (((storageColorScheme == 'Auto' || storageColorScheme == null) && window.matchMedia("(prefers-color-scheme: dark)").matches) || storageColorScheme == "Dark") {
+        document.getElementsByTagName('html')[0].classList.add('dark')
+    }
+</script>
+<nav class="flex items-center justify-between flex-wrap px-4 py-4 md:py-0">
+    <a href="/" class="me-6 text-primary-text text-xl font-bold">Tom&#39;s Blog</a>
+    <button id="navbar-btn" class="md:hidden flex items-center px-3 py-2" aria-label="Open Navbar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div id="target"
+        class="hidden block md:flex md:grow md:justify-between md:items-center w-full md:w-auto text-primary-text z-20">
+        <div class="md:flex md:h-16 text-sm md:grow pb-4 md:pb-0 border-b md:border-b-0">
+            <a href="/#about" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  border-transparent  me-4">关于我</a>
+            <a href="/posts/" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  selected-menu-item  me-4">文章</a>
+        </div>
+
+        <div class="flex">
+            <div class="relative pt-4 md:pt-0">
+                <div class="cursor-pointer hover:text-eureka" id="lightDarkMode">
+                    <i class="fas fa-adjust"></i>
+                </div>
+                <div class="fixed hidden inset-0 opacity-0 h-full w-full cursor-default z-30" id="is-open">
+                </div>
+                <div class="absolute flex flex-col start-0 md:start-auto end-auto md:end-0 hidden bg-secondary-bg w-48 rounded py-2 border border-tertiary-bg cursor-pointer z-40"
+                    id='lightDarkOptions'>
+                    <span class="px-4 py-1 hover:text-eureka" name="Light">浅色</span>
+                    <span class="px-4 py-1 hover:text-eureka" name="Dark">深色</span>
+                    <span class="px-4 py-1 hover:text-eureka" name="Auto">自动</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed hidden inset-0 opacity-0 h-full w-full cursor-default z-0" id="is-open-mobile">
+    </div>
+
+</nav>
+<script>
+    
+    let element = document.getElementById('lightDarkMode')
+    if (storageColorScheme == null || storageColorScheme == 'Auto') {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.matchMedia("(prefers-color-scheme: dark)").addEventListener('change', switchDarkMode)
+        })
+    } else if (storageColorScheme == "Light") {
+        element.firstElementChild.classList.remove('fa-adjust')
+        element.firstElementChild.setAttribute("data-icon", 'sun')
+        element.firstElementChild.classList.add('fa-sun')
+    } else if (storageColorScheme == "Dark") {
+        element.firstElementChild.classList.remove('fa-adjust')
+        element.firstElementChild.setAttribute("data-icon", 'moon')
+        element.firstElementChild.classList.add('fa-moon')
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        getcolorscheme();
+        switchBurger();
+    });
+</script>
+</div>
+    </header>
+    <main class="grow pt-16">
+        <div class="pl-scrollbar">
+          <div class="mx-auto w-full max-w-screen-xl lg:px-4 xl:px-8">
+  
+  
+  <div class="grid grid-cols-2 gap-4 lg:grid-cols-8 lg:pt-12">
+    <div
+      class="lg:col-start-2 bg-secondary-bg col-span-2 rounded px-6 py-8 lg:col-span-6"
+    >
+      <article class="prose">
+  <h1 class="mb-4">带你掌握 Protobuf 中 Varint 原理以及代码实现</h1>
+
+  <div
+  class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
+>
+  <div class="me-6 my-2">
+    <i class="fas fa-calendar me-1"></i>
+    <span
+      >2023-04-12</span
+    >
+  </div>
+  <div class="me-6 my-2">
+    <i class="fas fa-clock me-1"></i>
+    <span>19分钟阅读时长</span>
+  </div>
+
+  
+
+  
+</div>
+
+
+  
+  
+
+  <h2 id="varint简介">Varint简介</h2>
+<p>在我们使用gRPC框架进行服务间通信时，我们需要protobuf来定义服务接口和消息格式。
+在进行整数类型数据的传输时，除了定长的<code>fixed32/64</code>之外，Protobuf都使用了varint变长编码，甚至包括<code>bool</code>和<code>enum</code>类型。</p>
+<p>Varint编码的应用主要是为了解决传输整数时空间效率的问题，即可以用更小的字节数来表示一个整数以节省空间。
+以<code>uint32</code>类型为例，每个整数都需要占用4个字节，其最大可以表示的整数为<code>4294967295</code>，然而在实际业务场景中，我们很少会用到这么大的整数，例如传输一个芳龄18岁的用户年龄，使用固定大小的<code>uint32</code>类型就必须使用4个字节来表示用户年龄，多浪费的3字节的空间并没有承载任何有效的信息。</p>
+<h2 id="varint编码原理">Varint编码原理</h2>
+<p>使用varint编码后的结果，其每一个字节由两部分组成：</p>
+<ol>
+<li>最高位（Most Significant Bit, MSB）：标志位，表示后续字节是否还存在有效数据，如果为1，则表示后续字节还存在有效数据，如果为0，则表示后续字节不存在有效数据；</li>
+<li>低7位：存储有效数据。</li>
+</ol>
+<p>例如，对于整数<code>1</code>，其可以用一个字节来进行表示，因此varint编码后的结果为<code>00000001</code>，其最高位为0，表示后续字节不存在有效数据。</p>
+<p>而对于整数<code>180</code>，情况则稍微复杂一些，其编码后的结果为<code>10110100 00000001</code>，共占用了2个字节，这个结果是如何得到的呢？</p>
+<ol>
+<li>将整数<code>180</code>转换为二进制表示：<code>00000000 10110100</code></li>
+<li>将二进制表示的整数按照每7位进行分组：<code>0000001 0110100</code></li>
+<li>按照低字节在前的方式进行排列：<code>0110100 0000001</code></li>
+<li>增加标志位：<code>10110100 00000001</code></li>
+</ol>
+<p><img src="https://files.mdnice.com/user/17908/e63a6ecd-7c70-4bcd-b182-c9ec8432aeca.png" alt="Varint编码过程"></p>
+<p>从编码结果得到原始数据的过程则是编码过程的逆过程，即：</p>
+<ol>
+<li>读取字节流，遇到最高位为0的字节停止：<code>10110100 00000001</code></li>
+<li>去掉每个字节的标志位（最高位）：<code>0110100 0000001</code></li>
+<li>按照高字节（相对于原数据）在前的方式进行排列：<code>0000001 0110100</code></li>
+<li>拼接后得到原始数据：<code>00000000 10110100</code>，即<code>180</code></li>
+</ol>
+<p><img src="https://files.mdnice.com/user/17908/56b3c9ee-7590-4458-8e49-464e042a29b2.png" alt="Varint解码过程"></p>
+<p>从以上两个例子可以看出，varint变长编码可以节省空间，提高了整型数据传输的空间效率。
+对于<code>180</code>仅使用了2个字节进行传输，相比于使用固定大小的<code>uint32</code>类型，节省了50%的存储空间。</p>
+<p>Protobuf中<code>uint32</code>、<code>uint64</code>、<code>int32</code>、<code>int64</code>、<code>bool</code>和<code>enum</code>类型都直接使用了以上varint的编码方式。
+其中<code>enum</code>类型会将每个枚举值映射为一个<code>int32</code>类型，然后使用varint编码进行传输；<code>bool</code>类型会将<code>true</code>映射为<code>1</code>，<code>false</code>映射为<code>0</code>，然后同样使用varint编码进行传输。</p>
+<h2 id="varint编码负数zig-zag编码">Varint编码负数：Zig-Zag编码</h2>
+<p>以上我们一直没有明确考虑的负整数编码，只讨论了对正整数编码的情况，那么负整数的编码方式是怎样的呢？</p>
+<p>学过计算机基础的同学都知道，计算机表示负数时使用的是“补码”。
+若使用补码来表示一个负整数<code>-x</code>，其计算方式为：<code>~0 - x + 1</code>（<code>~</code>表示按位取反），相当于对<code>-x</code>的绝对值<code>x</code>进行取反，然后再加<code>1</code>。</p>
+<p>例如，对于32位的负整数<code>-2</code>，使用补码表示为<code>11111111 11111111 11111111 11111110</code>，若直接使用varint编码，则其编码结果为<code>11111110 11111111 11111111 11111111 00000001</code>，共占用5个字节。
+其实根据补码计算公式可推得，对于任意负整数，其补码的最高位都为1，因此所有负数的补码在进行varint编码时都会占用5个字节，这显然违背了varint编码节省数据传输空间的初衷。</p>
+<p>Protobuf中的<code>int32</code>、<code>int64</code>类型其实就是直接对负整数的补码直接进行了varint编码，因此官方给出的提示是：</p>
+<blockquote>
+<p>Inefficient for encoding negative numbers — if your field is likely to have negative values, use sint32/sint64 instead.</p>
+</blockquote>
+<p>即如果你的字段可能频繁存在负数，那么请使用<code>sint32/64</code>类型，而不是<code>int32/64</code>类型。</p>
+<p>那么相比<code>int32</code>和<code>int64</code>类型，为什么官方会更推荐使用<code>sint32</code>和<code>sint64</code>类型来表示负整数呢？</p>
+<p>答案就是<code>sint32/64</code>类型使用了zig-zag编码，其编码的方式为：</p>
+<ul>
+<li>对于正整数<code>x</code>：将其映射为<code>2 * x</code>（一定是是偶数）</li>
+<li>对于负整数<code>-x</code>：将其映射为<code>2 * x - 1</code>（一定是奇数）</li>
+</ul>
+<p>正如zig-zag的名字一样（之字形交错），正整数和负整数分别编码为正偶数和正奇数，交错排列。例如<code>sint32</code>的zig-zag编码情况如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">原码</th>
+<th style="text-align:center">编码</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">-1</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center">-2</td>
+<td style="text-align:center">3</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">4</td>
+</tr>
+<tr>
+<td style="text-align:center">&hellip;</td>
+<td style="text-align:center">&hellip;</td>
+</tr>
+<tr>
+<td style="text-align:center">0x7FFFFFFF</td>
+<td style="text-align:center">0xFFFFFFFE</td>
+</tr>
+<tr>
+<td style="text-align:center">-0x80000000</td>
+<td style="text-align:center">0xFFFFFFFF</td>
+</tr>
+</tbody>
+</table>
+<p>Zig-Zag编码后的负整数被转为正整数，然后再使用varint进行编码，这样就可以解决<code>int32/64</code>类型中对负数编码空间占用大的问题。</p>
+<h3 id="zig-zag编码的代码实现">Zig-Zag编码的代码实现</h3>
+<p>了解了zig-zag编码的原理之后，我们来用Rust编程语言实现一下。</p>
+<p>代码以32位整数为例（64位整数同理），编写Zig-Zag编码函数<code>zigzag_encode_32</code>与解码函数<code>zigzag_decode_32</code>，直接上代码：</p>
+<pre><code class="language-rust">fn zigzag_encode_32(x: i32) -&gt; u32 {
+    ((x &lt;&lt; 1) ^ (x &gt;&gt; 31)) as u32
+}
+
+fn zigzag_decode_32(x: u32) -&gt; i32 {
+    ((x &gt;&gt; 1) as i32) ^ -((x &amp; 1) as i32)
+}
+</code></pre>
+<p>看到代码可能一脸懵逼，zig-zag的编码和解码分别一行位运算代码就搞定了？我们来分别解释一下这两个位运算。</p>
+<p>先来看编码过程，核心的位运算如下：</p>
+<pre><code class="language-rust">(x &lt;&lt; 1) ^ (x &gt;&gt; 31)
+</code></pre>
+<p>首先，将<code>x</code>左移一位，相当于对<code>x</code>进行了乘以2，然后将<code>x</code><strong>算数</strong>右移31位，即将<code>x</code>最高位移动到最低位，最后将左移的结果与右移的结果进行异或运算。我们根据<code>x</code>的正负，分情况讨论一下这番操作后的结果是否符合zig-zag编码要求：</p>
+<ul>
+<li>当<code>x &gt;= 0</code>：<code>x</code>左移后变为<code>2x</code>，由于最高位是<code>0</code>，因此与<code>0</code>进行异或得到仍是<code>2x</code>不变，最终结果为<code>2x</code>，符合zig-zag编码要求；</li>
+<li>当<code>x &lt; 0</code>：<code>x</code>左移后变为<code>2x</code>，由于最高位是<code>1</code>，且有符号整型<code>i32</code>的右移是<strong>算数</strong>右移，右移后32位每一位都是<code>1</code>，因此与全<code>1</code>进行异或相当于对<code>2x</code>取反，又由于<code>2x</code>为负整数，其取反结果为<code>2|x| - 1</code>，符合zig-zag编码要求。</li>
+</ul>
+<p>关于<code>x</code>为负整数的情况，为什么说“由于<code>2x</code>为负整数，其取反结果为<code>2|x| - 1</code>”一定成立呢？我们计算<code>2x</code>补码时使用公式<code>~0 - 2|x| + 1</code>，加括号合并一下就变成了<code>~0 - (2|x| - 1)</code>，相当于对<code>2|x| - 1</code>直接进行取反，因此就有：</p>
+<pre><code class="language-rust">~(2x) == ~(~(2|x| - 1)) == 2|x| - 1
+</code></pre>
+<p>再来看解码过程，核心的位运算如下：</p>
+<pre><code class="language-rust">(x &gt;&gt; 1) ^ -(x &amp; 1)
+</code></pre>
+<p>还是分情况讨论，这里我们假设原整数为<code>n</code>，编码后的结果为<code>x</code>：</p>
+<ul>
+<li>当<code>n &gt;= 0</code>：<code>x = 2n</code>，右移一位后变为<code>n</code>；由于<code>x</code>一定为偶数所以<code>-(x &amp; 1) = 0</code>，与<code>0</code>进行异或后结果不变，因此最终结果为<code>n</code>，符合解码要求；</li>
+<li>当<code>n &lt; 0</code>：<code>x = 2|n| - 1</code>，右移一位相当于对<code>x</code>进行整除<code>2</code>，得到<code>|n| - 1</code>；由于<code>x</code>一定为奇数所以<code>-(x &amp; 1) = -1</code>，与<code>-1</code>进行异或相当于与全<code>1</code>进行异或，即对<code>|n| - 1</code>按位取反，因此最终结果为<code>n</code>，符合解码要求。</li>
+</ul>
+<p>这里再补充解释一下<code>n &lt; 0</code>时<code>|n| - 1</code>按位取反为什么等于<code>n</code>。
+对<code>|n| - 1</code>按位取反用式子可以表示为<code>~0 - (|n| - 1)</code>，进而有<code>~0 - |n| + 1</code>，这正好是<code>n</code>的补码表示！</p>
+<h2 id="不推荐使用varint编码的场景">不推荐使用varint编码的场景</h2>
+<p>Varint编码设计虽很精妙，但也有其不适用的场景：</p>
+<ul>
+<li>
+<p>大整数：对于数值很大的整数，varint编码可能会比固定长度的编码更消耗空间。例如，官方关于32位整数的建议是当整数大于<code>2^28</code>时，使用<code>fixed32</code>类型而不是<code>int32</code>类型（大于<code>2^28</code>时，varint编码需要占用5个字节，而<code>fixed32</code>类型只需要4个字节）；对于64位整数，当整数大于<code>2^56</code>时，使用<code>fixed64</code>类型而不是<code>int64</code>类型（大于<code>2^56</code>时，varint编码至少需要占用9个字节，而<code>fixed64</code>类型只需要8个字节）；</p>
+</li>
+<li>
+<p>需要快速随机访问的数据：由于varint是变长编码，所以我们无法直接通过索引来访问特定的整数，必须从头开始解码，直到找到我们需要的整数，这使得varint编码不适合用于需要快速随机访问的数据。</p>
+</li>
+</ul>
+<h2 id="varint-rust代码实现">Varint Rust代码实现</h2>
+<p>在本节将示范使用Rust代码，对Varint编码进行实现，并形成一个Rust library crate。这里先使用<code>cargo new --lib proto-varint</code>初始化代码根目录，项目起名为<code>proto-varint</code>，初始化后的项目结构如下：</p>
+<pre><code class="language-shell">proto-varint
+├── Cargo.toml
+└── src
+    └── lib.rs
+</code></pre>
+<p>Varint编码的过程是将整型数据转化成字节序列写入到数据源中（socket、文件等），解码的过程是从数据源中读取字节序列并转化为对应的整型数据。Rust语言对于向数据源的读和写字节分别提供了<code>std::io::Read</code>和<code>std::io::Write</code>这两个trait，为了方便用户使用，应当对所有实现<code>std::io::Read</code> trait的类型实现varint解码功能；对所有实现<code>std::io::Write</code> trait的类型实现varint编码功能。</p>
+<blockquote>
+<p><code>std::io::Read</code>提供了<code>read</code>方法，使得每次调用<code>read</code>都可以从数据源中读取若干字节至指定的buffer中；<code>std::io::Write</code>则提供了<code>write</code>方法，使得每次调用<code>write</code>都可以将指定buffer中的数据写入数据源中。<code>write</code>方法并不一定会将指定buffer中的数据全部成功写入数据源，因此<code>std::io::Write</code>也提供了<code>write_all</code>方法，其内部可能多次调用<code>write</code>，以确保指定buffer中的数据全部成功写入数据源。</p>
+</blockquote>
+<p>这里在<code>lib.rs</code>中先写一个框架：</p>
+<pre><code class="language-rust">/// Read varint from source.
+pub trait VarintRead: std::io::Read {
+    fn read_signed_varint_32(&amp;mut self) -&gt; Result&lt;i32, std::io::Error&gt; {
+        todo!(&quot;读取int32&quot;)
+    }
+    
+    fn read_unsigned_varint_32(&amp;mut self) -&gt; Result&lt;u32, std::io::Error&gt; {
+        todo!(&quot;读取u32&quot;)
+    }
+
+    fn read_signed_varint_64(&amp;mut self) -&gt; Result&lt;i64, std::io::Error&gt; {
+        todo!(&quot;读取i64&quot;)
+    }
+    
+    fn read_unsigned_varint_64(&amp;mut self) -&gt; Result&lt;u64, std::io::Error&gt; {
+        todo!(&quot;读取u64&quot;)
+    }
+}
+
+/// Write varint to source.
+pub trait VarintWrite: Write {
+    fn write_signed_varint_32(&amp;mut self, value: i32) -&gt; Result&lt;(), std::io::Error&gt; {
+    todo!(&quot;写入i32&quot;)
+    }
+    
+    fn write_unsigned_varint_32(&amp;mut self, value: u32) -&gt; Result&lt;(), std::io::Error&gt; {
+        todo!(&quot;写入u32&quot;)
+    }
+
+    fn write_signed_varint_64(&amp;mut self, value: i64) -&gt; Result&lt;(), std::io::Error&gt; {
+        todo!(&quot;写入i64&quot;)
+    }
+
+    fn write_signed_varint_64(&amp;mut self, value: u64) -&gt; Result&lt;(), std::io::Error&gt; {
+        todo!(&quot;写入u64&quot;)
+    }
+}
+
+// Implement VarintRead for any type that implements `std::io::Read`
+impl&lt;T: std::io::Read&gt; VarintRead for T {}
+// Implement VarintWrite for any type that implements `std::io::Write`
+impl&lt;T: std::io::Write&gt; VarintWrite for T {}
+</code></pre>
+<p>框架中定义了<code>VarintRead</code>和<code>VarintWrite</code>两个traits，其中<code>VarintRead</code> 为varint解码为整型（读取）的trait，<code>VarintWrite</code>为varint编码为字节序列（写入）的trait。<code>VarintRead</code>需要实现<code>read_signed_varint_32/64</code>（读取32/64位有符号整型）和<code>read_unsigned_varint_32/64</code>（读取32/64位无符号整型）的默认方法；<code>VarintWrite</code>需要实现<code>write_signed_varint_32/64</code>（读取32/64位有符号整型）和<code>write_unsigned_varint_32/64</code>（写入32/64位无符号整型）的默认方法。最后两行代码对所有实现<code>std::io::Read</code> trait的类型实现<code>VarintRead</code> ；对所有实现<code>std::io::Write</code> trait的类型实现<code>VarintWrite</code> 。</p>
+<h3 id="实现无符号整型的读写">实现无符号整型的读写</h3>
+<p>本节将主要以32位无符号整型的varint读写进行讲述，64位无符号整型的varint读写与其原理一致，仅有一些细节上的差异。</p>
+<p>首先来看一下varint写入，即编码的实现：</p>
+<pre><code class="language-rust">fn write_unsigned_varint_32(&amp;mut self, value: u32) -&gt; Result&lt;(), std::io::Error&gt; {
+    let mut value = value;
+    while value &gt;= 0x80 {
+        self.write_all(&amp;[value as u8 | 0x80])?;
+        value &gt;&gt;= 7;
+    }
+
+    return self.write_all(&amp;[value as u8]);
+}
+</code></pre>
+<p>下面将对代码中的核心要点进行注释：</p>
+<ol>
+<li>while循环条件<code>value &gt;= 0x80</code>：<code>0x80</code>对应的二进制形式为<code>1000 0000</code>，即表示<code>value</code>的二进制至少需要8位来进行表示，根据前文介绍的varint原理可知这种情况表明后续还需要更多字节对<code>value</code>进行存储；</li>
+<li><code>self.write_all(&amp;[value as u8 | 0x80])?</code>：<code>value as u8 | 0x80</code>将value使用一个字节来存储，即保留<code>value</code>低8位，并与<code>0x80</code>按位或操作，相当于将<strong>最高位设置为<code>1</code>，同时也提取出了<code>value</code>的最低 7 位</strong>，最终写入到数据源中。这里也使用了Rust的语法糖<code>?</code>，如果<code>write_all</code>失败则直接返回<code>std::io::Error</code>；</li>
+<li><code>value &gt;&gt;= 7</code>：<code>value</code>右移7位，继续处理写入后续有效数据，循环执行1、2、3；</li>
+<li><code>self.write_all(&amp;[value as u8])</code>：当循环结束，说明此时<code>value</code>最多只需要7位进行表示，因此转化为<code>u8</code>后直接写入数据源，最高位肯定为<code>0</code>。</li>
+</ol>
+<p>相对于varint的写入，读取varint的实现过程就略显复杂了：</p>
+<pre><code class="language-rust">const MAX_VARINT_32_BYTES: usize = 5; // Max byte of a varint for 32-bit unsigned integer.
+
+fn read_unsigned_varint_32(&amp;mut self) -&gt; Result&lt;u32, std::io::Error&gt; {
+    let mut result = 0;
+    let mut shift = 0;
+    let mut buf = vec![0u8];
+    for i in 0..MAX_VARINT_32_BYTES {
+        match self.read(&amp;mut buf)? {
+            0 =&gt; return Err(std::io::Error::new(std::io::ErrorKind::UnexpectedEof, &quot;EOF&quot;)),
+            1 =&gt; {
+                let v = buf[0];
+                if v &lt; 0x80 {
+                    if i == MAX_VARINT_32_BYTES - 1 &amp;&amp; v &gt;= 0x10 {
+                        return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, &quot;Overflow&quot;));
+                    }
+                    return Ok(result | (v as u32) &lt;&lt; shift);
+                }
+                result |= (v as u32 &amp; 0x7f) &lt;&lt; shift;
+                shift += 7;
+            }
+            _ =&gt; {
+                return Err(std::io::Error::new(std::io::ErrorKind::InvalidData, &quot;Invalid data&quot;));
+            }
+        }
+    }
+    Err(std::io::Error::new(std::io::ErrorKind::InvalidData, &quot;Overflow&quot;))
+}
+</code></pre>
+<p>这里使用常量<code>MAX_VARINT_32_BYTES = 5</code>表示varint最大会使用5个字节对32位无符号整型进行编码，因此主体的<code>for</code>循环也是最多执行<code>MAX_VARINT_32_BYTES</code>次，如果超过<code>MAX_VARINT_32_BYTES</code>次则表明数据溢出，返回<code>std::io::ErrorKind::InvalidData</code>并提示溢出。</p>
+<p>在<code>for</code>循环开始前，代码初始化了一个长度为1，类型为<code>u8</code>的缓冲空间<code>buf</code>，每次执行循环时，调用<code>read</code>从数据源中读取1字节数据到<code>buf</code>中，<code>read</code>返回所读取的字节数，这里理论上来讲会正好读取1字节，因此对于0字节说明数据传输不全，返回一个<code>std::io::ErrorKind::UnexpectedEof</code>错误，对于其它非1字节的结果返回<code>std::io::ErrorKind::InvalidData</code>。</p>
+<p>在<code>for</code>循环开始前，代码同样初始化了最终结果<code>result = 0</code>，和<code>shift = 0</code>，即当前读取到的字节<code>v</code>中的有效数据需要左移多少位才可以写入<code>result</code>。</p>
+<p>正确读取1字节后，将该字节<code>v</code>与<code>0x80</code>进行比较：</p>
+<ul>
+<li>
+<p>若<code>v &gt;= 0x80</code>：说明<code>v</code>最高位为<code>1</code>，即后续字节中还有数据需要处理。<code>result |= (v as u32 &amp; 0x7f) &lt;&lt; shift</code>这行代码首先将<code>v</code>与<code>0x7f</code>进行按位与，根据varint规则保留了<code>v</code>中低7位的有效数据，然后左移<code>shift</code>位并与<code>result</code>按位或，将<code>v</code>中有效数据写入结果的高位中；</p>
+</li>
+<li>
+<p>若<code>v &lt; 0x80</code>：说明<code>v</code>最高位不为<code>1</code>，即后续字节中没有数据需要处理。此时还需要进行数据的溢出检查，如果当前<code>i == MAX_VARINT_32_BYTES - 1</code>说明已经读取到<code>MAX_VARINT_32_BYTES</code>个字节，在此前提下如果读取到的字节<code>v &gt;= 0x10</code>那么最终得到的32位无符号整型数一定会溢出，则返回<code>std::io::ErrorKind::InvalidData</code>并提示溢出。这个<code>0x10</code>便是32位无符号整数所能够表示的最大值<code>2^32 - 1</code>在使用varint进行编码时最高字节的最大值——<code>0x0F</code>加1。若通过溢出检查，则将<code>v</code>左移<code>shift</code>位，与<code>result</code>进行按位或，得到最终的结果并返回。这里不要忘记对<code>shift</code>进行加7。</p>
+</li>
+</ul>
+<p>以上较详细地对32位无符号整型的varint读写的代码实现进行了讲述，对于64位无符号整型的varint读写来讲实现方式是一模一样的，只存在以下和数据溢出相关的常量的区别：</p>
+<ul>
+<li><code>MAX_VARINT_64_BYTES = 10</code>表示varint最大会使用10个字节对64位无符号整型进行编码，因此主循环也最多执行<code>MAX_VARINT_64_BYTES</code>次；</li>
+<li>对应32位无符号整型的溢出检查时所比较的常量<code>0x10</code>，64位无符号整数所能够表示的最大值<code>2^64 - 1</code>在使用varint进行编码时最高字节的最大值为<code>0x01</code>，因此32位代码中<code>v &gt;= 0x10</code>在64位代码中要替换为<code>v &gt;= 0x02</code>。</li>
+</ul>
+<p>通过varint读取/写入代码实现可以发现在写入时很自然地先对整数的低字节进行处理，在读取时也会先解码出原整型数据的低字节，这也就解释了为什么在前文介绍varint编码解码步骤时为什么要进行高低字节调转了——这样更符合代码实现的习惯。</p>
+<h3 id="实现有符号整型的读写">实现有符号整型的读写</h3>
+<p>前文所介绍的varint编码原理，提到对有符号整型会使用zig-zag编码，将正整数和负整数交替映射到无符号整型空间中。基于现在所实现的无符号整型的varint读写，可以很容易地实现有符号整型的varint读写（这里还是以32位有符号整型为例，64位同理）：</p>
+<pre><code class="language-rust">fn write_signed_varint_32(&amp;mut self, value: i32) -&gt; Result&lt;(), std::io::Error&gt; {
+    self.write_unsigned_varint_32(value.zigzag())
+}
+
+fn read_signed_varint_32(&amp;mut self) -&gt; Result&lt;i32, std::io::Error&gt; {
+    let v = self.read_unsigned_varint_32()?;
+    Ok(v.zigzag())
+}
+</code></pre>
+<p>在<code>write_signed_varint_32</code>方法中写入<code>i32</code>时，先对<code>value</code>进行zig-zag编码，然后将编码结果直接传到无符号整型的varint写方法<code>write_unsigned_varint_32</code>；对应<code>read_signed_varint_32</code>读方法中，先调用无符号整型varint读方法，并对读出来的无符号整型结果进行zig-zag解码。</p>
+<h3 id="实现zig-zag编码">实现Zig-Zag编码</h3>
+<p>上一节所展示的有符号整型的varint读写代码需要让<code>i32</code>/<code>i64</code>类型实现<code>zigzag</code>方法将其zig-zag编码为<code>u32</code>/<code>u64</code>类型，然后需要让<code>u32</code>/<code>u64</code>类型实现<code>zigzag</code>方法将其zig-zag解码为<code>i32</code>/<code>i64</code>类型，因此需要定义一个<code>ZigZag</code>的trait，包含<code>zigzag</code>方法：</p>
+<pre><code class="language-rust">pub trait ZigZag&lt;T&gt; {
+    fn zigzag(&amp;self) -&gt; T;
+}
+</code></pre>
+<p><code>ZigZag</code> trait使用了泛型，类型形参<code>T</code>为<code>zigzag</code>方法的返回类型，此时根据zig-zag编码需求可以写出以下代码，依次使得<code>i32</code>/<code>i64</code>/<code>u32</code>/<code>u64</code>实现<code>ZigZag</code> trait：</p>
+<pre><code class="language-rust">impl ZigZag&lt;u32&gt; for i32 {
+    fn zigzag(&amp;self) -&gt; u32 {
+        ((self &lt;&lt; 1) ^ (self &gt;&gt; 31)) as u32
+    }
+}
+
+impl ZigZag&lt;i32&gt; for u32 {
+    fn zigzag(&amp;self) -&gt; i32 {
+        ((self &gt;&gt; 1) as i32) ^ -((self &amp; 1) as i32)
+    }
+}
+
+impl ZigZag&lt;u64&gt; for i64 {
+    fn zigzag(&amp;self) -&gt; u64 {
+        ((self &lt;&lt; 1) ^ (self &gt;&gt; 63)) as u64
+    }
+}
+
+impl ZigZag&lt;i64&gt; for u64 {
+    fn zigzag(&amp;self) -&gt; i64 {
+        ((self &gt;&gt; 1) as i64) ^ -((self &amp; 1) as i64)
+    }
+}
+</code></pre>
+<p>其中，当<code>T</code>为<code>u32</code>/<code>u64</code>时，<code>zigzag</code>需要实现编码；当<code>T</code>为<code>i32</code>/<code>i64</code>时，<code>zigzag</code>需要实现解码。Zig-Zag编码解码的代码实现在前文中已有详细解释，这里不再赘述。</p>
+<p>目前为止，我们对varint的实现全部写在了<code>lib.rs</code>一个源文件中，代码比较臃肿且结构不是很清晰。由于zig-zag的代码逻辑属于比较独立的模块，我们可以将zig-zag的实现独立为一个Rust module。这里我们新建一个<code>zigzag.rs</code>源文件，将本节中zig-zag的代码实现复制过去，并且不要忘记在主模块<code>lib.rs</code>中添加<code>mod zigzag</code>以声明<code>zigzag</code>模块（不熟悉Rust module的朋友请参考<a href="https://doc.rust-lang.org/stable/book/ch07-00-managing-growing-projects-with-packages-crates-and-modules.html">Rust官方教程</a>）。此时我们<code>proto-varint</code>项目根目录结构如下：</p>
+<pre><code class="language-shell">proto-varint
+├── Cargo.toml
+└── src
+    ├── lib.rs
+    └── zigzag.rs
+</code></pre>
+<h3 id="使用rust宏优化重复代码">使用Rust宏优化重复代码</h3>
+<p>当前varint的读写代码实现针对32位整数和64位整数分别提供了两套几乎一样的代码，只有一些细节上的不同，例如在varint读时，32位整型的varint最多5字节，而64位最多10字节。因此我们可以使用Rust宏（Macro）写一个通用的模版，减少因32位和64位的不同而导致的重复代码。</p>
+<p>我们这里声明一个<code>gen_fn</code>宏（代码详见下一节），在生成varint读的代码时，我们需要向<code>gen_fn</code>宏依次传入<code>fn_name</code>（方法名）、<code>type</code>（返回类型<code>u32</code>/<code>u64</code>）、<code>max_bytes</code>（varint最大字节）和<code>overflow_limit</code>（前文所说的<code>u32</code>/<code>u64</code>溢出值）；在生成varint写的代码时，我们需要向<code>gen_fn</code>宏依次传入<code>fn_name</code>（方法名）和<code>type</code>（写入数据类型<code>u32</code>/<code>u64</code>）。</p>
+<h3 id="完整proto-varint代码">完整proto-varint代码</h3>
+<p>本节将展示完整的<code>proto-varint</code>核心代码。</p>
+<p>lib.rs：</p>
+<pre><code class="language-rust">use std::io::{Error, ErrorKind, Read, Write};
+
+use zigzag::ZigZag;
+
+mod zigzag;
+
+const MAX_VARINT_32_BYTES: usize = 5;
+const MAX_VARINT_64_BYTES: usize = 10;
+
+macro_rules! gen_fn {
+    ($fn_name:ident, $type:ty, $max_bytes:expr, $overflow_limit:expr) =&gt; {
+        fn $fn_name(&amp;mut self) -&gt; Result&lt;$type, Error&gt; {
+            let mut result = 0;
+            let mut shift = 0;
+            let mut buf = vec![0u8];
+            for i in 0..$max_bytes {
+                match self.read(&amp;mut buf)? {
+                    0 =&gt; return Err(Error::new(ErrorKind::UnexpectedEof, &quot;EOF&quot;)),
+                    1 =&gt; {
+                        let v = buf[0];
+                        if v &lt; 0x80 {
+                            if i == $max_bytes - 1 &amp;&amp; v &gt;= $overflow_limit {
+                                return Err(Error::new(ErrorKind::InvalidData, &quot;Overflow&quot;));
+                            }
+                            return Ok(result | (v as $type) &lt;&lt; shift);
+                        }
+                        result |= (v as $type &amp; 0x7f) &lt;&lt; shift;
+                        shift += 7;
+                    }
+                    _ =&gt; {
+                        return Err(Error::new(ErrorKind::InvalidData, &quot;Invalid data&quot;));
+                    }
+                }
+            }
+
+            Err(Error::new(ErrorKind::InvalidData, &quot;Overflow&quot;))
+        }
+    };
+    ($fn_name:ident, $type:ty) =&gt; {
+        fn $fn_name(&amp;mut self, value: $type) -&gt; Result&lt;(), Error&gt; {
+            let mut value = value;
+            while value &gt;= 0x80 {
+                self.write_all(&amp;[value as u8 | 0x80])?;
+                value &gt;&gt;= 7;
+            }
+
+            return self.write_all(&amp;[value as u8]);
+        }
+    };
+}
+
+/// Read varint from source.
+pub trait VarintRead: Read {
+    fn read_signed_varint_32(&amp;mut self) -&gt; Result&lt;i32, Error&gt; {
+        let v = self.read_unsigned_varint_32()?;
+        Ok(v.zigzag())
+    }
+
+    gen_fn!(read_unsigned_varint_32, u32, MAX_VARINT_32_BYTES, 0x10);
+
+    fn read_signed_varint_64(&amp;mut self) -&gt; Result&lt;i64, Error&gt; {
+        let v = self.read_unsigned_varint_64()?;
+        Ok(v.zigzag())
+    }
+
+    gen_fn!(read_unsigned_varint_64, u64, MAX_VARINT_64_BYTES, 0x02);
+}
+
+/// Write varint to a sink.
+pub trait VarintWrite: Write {
+    fn write_signed_varint_32(&amp;mut self, value: i32) -&gt; Result&lt;(), Error&gt; {
+        self.write_unsigned_varint_32(value.zigzag())
+    }
+
+    gen_fn!(write_unsigned_varint_32, u32);
+
+    fn write_signed_varint_64(&amp;mut self, value: i64) -&gt; Result&lt;(), Error&gt; {
+        self.write_unsigned_varint_64(value.zigzag())
+    }
+
+    gen_fn!(write_unsigned_varint_64, u64);
+}
+
+// Implement VarintRead for any type that implements std::io::Read.
+impl&lt;T: Read&gt; VarintRead for T {}
+// Implement VarintWrite for any type that implements `std::io::Write`
+impl&lt;T: Write&gt; VarintWrite for T {}
+</code></pre>
+<p>zigzag.rs：</p>
+<pre><code class="language-rust">pub trait ZigZag&lt;T&gt; {
+    fn zigzag(&amp;self) -&gt; T;
+}
+
+impl ZigZag&lt;u32&gt; for i32 {
+    fn zigzag(&amp;self) -&gt; u32 {
+        ((self &lt;&lt; 1) ^ (self &gt;&gt; 31)) as u32
+    }
+}
+
+impl ZigZag&lt;i32&gt; for u32 {
+    fn zigzag(&amp;self) -&gt; i32 {
+        ((self &gt;&gt; 1) as i32) ^ -((self &amp; 1) as i32)
+    }
+}
+
+impl ZigZag&lt;u64&gt; for i64 {
+    fn zigzag(&amp;self) -&gt; u64 {
+        ((self &lt;&lt; 1) ^ (self &gt;&gt; 63)) as u64
+    }
+}
+
+impl ZigZag&lt;i64&gt; for u64 {
+    fn zigzag(&amp;self) -&gt; i64 {
+        ((self &gt;&gt; 1) as i64) ^ -((self &amp; 1) as i64)
+    }
+}
+</code></pre>
+<h3 id="单元测试cases">单元测试Cases</h3>
+<p>Zig-Zag相关cases：</p>
+<pre><code class="language-rust">#[cfg(test)]
+mod test {
+    use super::ZigZag;
+
+    #[test]
+    fn test_zigzag_32_encode() {
+        assert_eq!(0, 0i32.zigzag());
+        assert_eq!(1, (-1i32).zigzag());
+        assert_eq!(2, 1i32.zigzag());
+        assert_eq!(3, (-2i32).zigzag());
+        assert_eq!(0xfffffffe, 0x7fffffffi32.zigzag());
+    }
+
+    #[test]
+    fn test_zigzag_32_decode() {
+        assert_eq!(0, 0u32.zigzag());
+        assert_eq!(-1, 1u32.zigzag());
+        assert_eq!(1, 2u32.zigzag());
+        assert_eq!(-2, 3u32.zigzag());
+        assert_eq!(0x7fffffff, 0xfffffffeu32.zigzag());
+        assert_eq!(-0x80000000, 0xffffffffu32.zigzag());
+    }
+
+    #[test]
+    fn test_zigzag_64_encode() {
+        assert_eq!(0, 0i64.zigzag());
+        assert_eq!(1, (-1i64).zigzag());
+        assert_eq!(2, 1i64.zigzag());
+        assert_eq!(3, (-2i64).zigzag());
+        assert_eq!(0xfffffffffffffffe, 0x7fffffffffffffffi64.zigzag());
+    }
+
+    #[test]
+    fn test_zigzag_64_decode() {
+        assert_eq!(0, 0u64.zigzag());
+        assert_eq!(-1, 1u64.zigzag());
+        assert_eq!(1, 2u64.zigzag());
+        assert_eq!(-2, 3u64.zigzag());
+        assert_eq!(0x7fffffffffffffff, 0xfffffffffffffffeu64.zigzag());
+        assert_eq!(-0x8000000000000000, 0xffffffffffffffffu64.zigzag());
+    }
+}
+</code></pre>
+<p>Varint读写相关Cases，包含临界值、特殊值的Cases：</p>
+<pre><code class="language-rust">#[cfg(test)]
+mod test {
+    use std::io::{Cursor, ErrorKind};
+
+    use crate::{VarintRead, VarintWrite};
+
+    #[test]
+    fn test_read_unsigned_varint_32() {
+        let mut buf = Cursor::new(vec![0x01]);
+        assert_eq!(Some(1), buf.read_unsigned_varint_32().ok());
+
+        buf = Cursor::new(vec![0xB4, 0x01]);
+        assert_eq!(Some(180), buf.read_unsigned_varint_32().ok());
+
+        buf = Cursor::new(vec![0xB4, 0x81, 0x01]);
+        assert_eq!(Some(16564), buf.read_unsigned_varint_32().ok());
+
+        buf = Cursor::new(vec![0xB4, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(2113716), buf.read_unsigned_varint_32().ok());
+
+        buf = Cursor::new(vec![0xB4, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(270549172), buf.read_unsigned_varint_32().ok());
+
+        buf = Cursor::new(vec![0xFF, 0xFF, 0xFF, 0xFF, 0x0F]);
+        assert_eq!(Some(u32::MAX), buf.read_unsigned_varint_32().ok());
+    }
+
+    #[test]
+    fn test_read_signed_varint_32() {
+        let mut buf = Cursor::new(vec![0x01]);
+        assert_eq!(Some(-1), buf.read_signed_varint_32().ok());
+
+        buf = Cursor::new(vec![0x02]);
+        assert_eq!(Some(1), buf.read_signed_varint_32().ok());
+
+        buf = Cursor::new(vec![0x81, 0x01]);
+        assert_eq!(Some(-65), buf.read_signed_varint_32().ok());
+
+        buf = Cursor::new(vec![0x82, 0x01]);
+        assert_eq!(Some(65), buf.read_signed_varint_32().ok());
+
+        buf = Cursor::new(vec![0x81, 0x81, 0x01]);
+        assert_eq!(Some(-8257), buf.read_signed_varint_32().ok());
+
+        buf = Cursor::new(vec![0x82, 0x81, 0x01]);
+        assert_eq!(Some(8257), buf.read_signed_varint_32().ok());
+
+        buf = Cursor::new(vec![0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(-1056833), buf.read_signed_varint_32().ok());
+
+        buf = Cursor::new(vec![0x82, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(1056833), buf.read_signed_varint_32().ok());
+
+        buf = Cursor::new(vec![0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(-135274561), buf.read_signed_varint_32().ok());
+
+        buf = Cursor::new(vec![0x82, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(135274561), buf.read_signed_varint_32().ok());
+
+        buf = Cursor::new(vec![0xFF, 0xFF, 0xFF, 0xFF, 0x0F]);
+        assert_eq!(Some(i32::MIN), buf.read_signed_varint_32().ok());
+
+        buf = Cursor::new(vec![0xFE, 0xFF, 0xFF, 0xFF, 0x0F]);
+        assert_eq!(Some(i32::MAX), buf.read_signed_varint_32().ok());
+    }
+
+    #[test]
+    fn test_read_write_unsigned_varint_32() {
+        let mut buf = Cursor::new(vec![0u8; 0]);
+        assert!(buf.write_unsigned_varint_32(1).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(1), buf.read_unsigned_varint_32().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_unsigned_varint_32(180).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(180), buf.read_unsigned_varint_32().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_unsigned_varint_32(16564).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(16564), buf.read_unsigned_varint_32().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_unsigned_varint_32(2113716).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(2113716), buf.read_unsigned_varint_32().ok());
+    }
+
+    #[test]
+    fn test_read_write_signed_varint_32() {
+        let mut buf = Cursor::new(vec![0u8; 0]);
+        assert!(buf.write_signed_varint_32(-1).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-1), buf.read_signed_varint_32().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_32(1).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(1), buf.read_signed_varint_32().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_32(-65).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-65), buf.read_signed_varint_32().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_32(65).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(65), buf.read_signed_varint_32().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_32(-8257).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-8257), buf.read_signed_varint_32().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_32(8257).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(8257), buf.read_signed_varint_32().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_32(-1056833).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-1056833), buf.read_signed_varint_32().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_32(1056833).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(1056833), buf.read_signed_varint_32().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_32(-135274561).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-135274561), buf.read_signed_varint_32().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_32(135274561).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(135274561), buf.read_signed_varint_32().ok());
+    }
+
+    #[test]
+    fn test_read_unsigned_varint_64() {
+        let mut buf = Cursor::new(vec![0x01]);
+        assert_eq!(Some(1), buf.read_unsigned_varint_64().ok());
+
+        buf = Cursor::new(vec![0xB4, 0x01]);
+        assert_eq!(Some(180), buf.read_unsigned_varint_64().ok());
+
+        buf = Cursor::new(vec![0xB4, 0x81, 0x01]);
+        assert_eq!(Some(16564), buf.read_unsigned_varint_64().ok());
+
+        buf = Cursor::new(vec![0xB4, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(2113716), buf.read_unsigned_varint_64().ok());
+
+        buf = Cursor::new(vec![0xB4, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(270549172), buf.read_unsigned_varint_64().ok());
+
+        buf = Cursor::new(vec![0xB4, 0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(34630287540), buf.read_unsigned_varint_64().ok());
+
+        buf = Cursor::new(vec![0xB4, 0x81, 0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(4432676798644), buf.read_unsigned_varint_64().ok());
+
+        buf = Cursor::new(vec![0xB4, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(567382630219956), buf.read_unsigned_varint_64().ok());
+
+        buf = Cursor::new(vec![0xB4, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(72624976668147892), buf.read_unsigned_varint_64().ok());
+
+        buf = Cursor::new(vec![
+            0xB4, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x01,
+        ]);
+        assert_eq!(
+            Some(9295997013522923700),
+            buf.read_unsigned_varint_64().ok()
+        );
+
+        buf = Cursor::new(vec![
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x01,
+        ]);
+        assert_eq!(Some(u64::MAX), buf.read_unsigned_varint_64().ok());
+    }
+
+    #[test]
+    fn test_read_signed_varint_64() {
+        let mut buf = Cursor::new(vec![0x01]);
+        assert_eq!(Some(-1), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x02]);
+        assert_eq!(Some(1), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x81, 0x01]);
+        assert_eq!(Some(-65), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x82, 0x01]);
+        assert_eq!(Some(65), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x81, 0x81, 0x01]);
+        assert_eq!(Some(-8257), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x82, 0x81, 0x01]);
+        assert_eq!(Some(8257), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(-1056833), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x82, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(1056833), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(-135274561), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x82, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(135274561), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x81, 0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(-17315143745), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x82, 0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(17315143745), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(-2216338399297), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x82, 0x81, 0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(2216338399297), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(-283691315109953), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x82, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(283691315109953), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(-36312488334073921), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![0x82, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert_eq!(Some(36312488334073921), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![
+            0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x01,
+        ]);
+        assert_eq!(Some(-4647998506761461825), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![
+            0x82, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x01,
+        ]);
+        assert_eq!(Some(4647998506761461825), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x01,
+        ]);
+        assert_eq!(Some(i64::MIN), buf.read_signed_varint_64().ok());
+
+        buf = Cursor::new(vec![
+            0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x01,
+        ]);
+        assert_eq!(Some(i64::MAX), buf.read_signed_varint_64().ok());
+    }
+
+    #[test]
+    fn test_read_write_unsigned_varint_64() {
+        let mut buf = Cursor::new(vec![0u8; 0]);
+        assert!(buf.write_unsigned_varint_64(1).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(1), buf.read_unsigned_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_unsigned_varint_64(180).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(180), buf.read_unsigned_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_unsigned_varint_64(16564).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(16564), buf.read_unsigned_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_unsigned_varint_64(2113716).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(2113716), buf.read_unsigned_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_unsigned_varint_64(270549172).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(270549172), buf.read_unsigned_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_unsigned_varint_64(34630287540).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(34630287540), buf.read_unsigned_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_unsigned_varint_64(4432676798644).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(4432676798644), buf.read_unsigned_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_unsigned_varint_64(567382630219956).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(567382630219956), buf.read_unsigned_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_unsigned_varint_64(72624976668147892).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(72624976668147892), buf.read_unsigned_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_unsigned_varint_64(9295997013522923700).is_ok());
+        buf.set_position(0);
+        assert_eq!(
+            Some(9295997013522923700),
+            buf.read_unsigned_varint_64().ok()
+        );
+    }
+
+    #[test]
+    fn test_read_write_signed_varint_64() {
+        let mut buf = Cursor::new(vec![0u8; 0]);
+        assert!(buf.write_signed_varint_64(-1).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-1), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(1).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(1), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(-65).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-65), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(65).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(65), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(-8257).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-8257), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(8257).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(8257), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(-1056833).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-1056833), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(1056833).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(1056833), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(-135274561).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-135274561), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(135274561).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(135274561), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(-17315143745).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-17315143745), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(17315143745).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(17315143745), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(-2216338399297).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-2216338399297), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(2216338399297).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(2216338399297), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(-283691315109953).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-283691315109953), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(283691315109953).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(283691315109953), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(-36312488334073921).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-36312488334073921), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(36312488334073921).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(36312488334073921), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(-4647998506761461825).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(-4647998506761461825), buf.read_signed_varint_64().ok());
+
+        buf.set_position(0);
+        assert!(buf.write_signed_varint_64(4647998506761461825).is_ok());
+        buf.set_position(0);
+        assert_eq!(Some(4647998506761461825), buf.read_signed_varint_64().ok());
+    }
+
+    #[test]
+    fn test_read_varint_overflow() {
+        let mut buf = Cursor::new(vec![0x96, 0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert!(buf
+            .read_unsigned_varint_32()
+            .is_err_and(|e| e.kind() == ErrorKind::InvalidData));
+
+        buf = Cursor::new(vec![0x96, 0x81, 0x81, 0x81, 0x81, 0x01]);
+        assert!(buf
+            .read_signed_varint_32()
+            .is_err_and(|e| e.kind() == ErrorKind::InvalidData));
+
+        buf = Cursor::new(vec![0x96, 0x81, 0x81, 0x81, 0x10]);
+        assert!(buf
+            .read_unsigned_varint_32()
+            .is_err_and(|e| e.kind() == ErrorKind::InvalidData));
+
+        buf = Cursor::new(vec![0x96, 0x81, 0x81, 0x81, 0x10]);
+        assert!(buf
+            .read_signed_varint_32()
+            .is_err_and(|e| e.kind() == ErrorKind::InvalidData));
+
+        buf = Cursor::new(vec![
+            0x96, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x01,
+        ]);
+        assert!(buf
+            .read_unsigned_varint_64()
+            .is_err_and(|e| e.kind() == ErrorKind::InvalidData));
+
+        buf = Cursor::new(vec![
+            0x96, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x01,
+        ]);
+        assert!(buf
+            .read_signed_varint_64()
+            .is_err_and(|e| e.kind() == ErrorKind::InvalidData));
+
+        buf = Cursor::new(vec![
+            0x96, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x02,
+        ]);
+        assert!(buf
+            .read_unsigned_varint_64()
+            .is_err_and(|e| e.kind() == ErrorKind::InvalidData));
+
+        buf = Cursor::new(vec![
+            0x96, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x02,
+        ]);
+        assert!(buf
+            .read_signed_varint_64()
+            .is_err_and(|e| e.kind() == ErrorKind::InvalidData));
+    }
+
+    #[test]
+    fn test_read_write_many_unsigned_varint_32() {
+        let mut vector = Cursor::new(vec![0u8; 0]);
+        for i in 0..1 &lt;&lt; 20 {
+            vector.write_unsigned_varint_32(i).unwrap();
+        }
+
+        vector.set_position(0);
+        for i in 0..1 &lt;&lt; 20 {
+            assert_eq!(Some(i), vector.read_unsigned_varint_32().ok());
+        }
+    }
+
+    #[test]
+    fn test_read_write_many_signed_varint_32() {
+        let mut vector = Cursor::new(vec![0u8; 0]);
+        for i in -(1 &lt;&lt; 19)..1 &lt;&lt; 19 {
+            vector.write_signed_varint_32(i).unwrap();
+        }
+
+        vector.set_position(0);
+        for i in -(1 &lt;&lt; 19)..1 &lt;&lt; 19 {
+            assert_eq!(Some(i), vector.read_signed_varint_32().ok());
+        }
+    }
+
+    #[test]
+    fn test_read_write_many_unsigned_varint_64() {
+        let mut vector = Cursor::new(vec![0u8; 0]);
+        for i in 0..1 &lt;&lt; 20 {
+            vector.write_unsigned_varint_64(i).unwrap();
+        }
+
+        vector.set_position(0);
+        for i in 0..1 &lt;&lt; 20 {
+            assert_eq!(Some(i), vector.read_unsigned_varint_64().ok());
+        }
+    }
+
+    #[test]
+    fn test_read_write_many_signed_varint_64() {
+        let mut vector = Cursor::new(vec![0u8; 0]);
+        for i in -(1 &lt;&lt; 19)..1 &lt;&lt; 19 {
+            vector.write_signed_varint_64(i).unwrap();
+        }
+
+        vector.set_position(0);
+        for i in -(1 &lt;&lt; 19)..1 &lt;&lt; 19 {
+            assert_eq!(Some(i), vector.read_signed_varint_64().ok());
+        }
+    }
+}
+</code></pre>
+
+</article>
+
+
+      
+
+      
+
+
+
+      
+
+      
+  <div
+    class="-mx-2 mt-4 flex flex-col border-t px-2 pt-4 md:flex-row md:justify-between"
+  >
+    <div>
+      
+        <span class="text-primary-text block font-bold"
+          >上一页</span
+        >
+        <a href="/posts/golang/go_vuln/" class="block">「Go系列」漏洞管理体系以及 govulncheck 漏洞检测工具介绍</a>
+      
+    </div>
+    <div class="mt-4 md:mt-0 md:text-right">
+      
+        <span class="text-primary-text block font-bold">下一页</span>
+        <a href="/posts/golang/go_map/" class="block">「Go系列」Map类型深入学习</a>
+      
+    </div>
+  </div>
+
+
+      
+
+
+
+    </div>
+    
+
+    
+    
+  </div>
+
+  
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        hljs.highlightAll();
+      });
+    </script>
+
+          </div>
+        </div>
+      
+    </main>
+    <footer class="pl-scrollbar">
+      <div class="mx-auto w-full max-w-screen-xl"><div class="text-center p-6 pin-b">
+    <p class="text-sm text-tertiary-text">&copy; 2021 <a href="https://www.wangchucheng.com/">WANG Chucheng</a> and <a href="https://www.ruiqima.com/">MA Ruiqi</a>
+ &middot;  Powered by the <a href="https://github.com/wangchucheng/hugo-eureka" class="hover:text-eureka">Eureka</a> theme for <a href="https://gohugo.io" class="hover:text-eureka">Hugo</a></p>
+</div></div>
+    </footer>
+  </body>
+</html>

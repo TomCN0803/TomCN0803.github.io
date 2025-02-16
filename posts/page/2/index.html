@@ -87,9 +87,21 @@
     "itemListElement":[{
             "@type":"ListItem",
             "position":  1 ,
-            "name": "「Go系列」浅探一下Go语言的类型系统",
-            "description": "Go语言是强类型语言，编译器在编译阶段会给代码中每一种类型生成对应的类型描述信息并写入到二进制可执行文件中，这些类型描述信息就被称为“类型元数据”。 G",
-            "url": "/posts/golang/go_type_system/"
+            "name": "「Go系列」被遗忘的并发原语——sync.Cond",
+            "description": "有其它语言并发编程经验的 Gopher 们一定不会对条件变量（Condition Variable）相关的并发原语感到陌生，例如 Java 的java.utils.concur",
+            "url": "/posts/golang/go_cond/"
+        },{
+            "@type":"ListItem",
+            "position":  2 ,
+            "name": "一文揭秘刘谦春晚魔术背后到底发生了什么",
+            "description": "刘谦老师在今年央视龙年春晚的魔术表演绝对是是最精彩的节目之一，尤其是第二个魔术，创新性地让现场、电视机前的观众都参与到了魔术表演中，直观感受到了魔术表",
+            "url": "/posts/chunwan/"
+        },{
+            "@type":"ListItem",
+            "position":  3 ,
+            "name": "「Go系列」扩展并发原语之errgroup.Group的实战与源码解读",
+            "description": "Go 语言是如今高并发服务的首选编程语言之一，其自带的go关键字、channel 类型以及标准库sync和sync/atomic中较为丰富的并发原语，使得 Gopher",
+            "url": "/posts/golang/go_errgroup/"
         }
     ]
 }
@@ -124,7 +136,7 @@
 
 
 
-<meta property="og:updated_time" content="2022-08-14T19:13:05&#43;08:00" />
+<meta property="og:updated_time" content="2024-09-22T12:00:00&#43;08:00" />
 
 
 
@@ -218,11 +230,11 @@
   
   <div class="w-full ">
     <div class="prose">
-  <a href="/posts/golang/go_type_system/" class="no-underline">
-    <h3 class="mt-0">「Go系列」浅探一下Go语言的类型系统</h3>
+  <a href="/posts/golang/go_cond/" class="no-underline">
+    <h3 class="mt-0">「Go系列」被遗忘的并发原语——sync.Cond</h3>
   </a>
   
-    Go语言是强类型语言，编译器在编译阶段会给代码中每一种类型生成对应的类型描述信息并写入到二进制可执行文件中，这些类型描述信息就被称为“类型元数据”。 G
+    有其它语言并发编程经验的 Gopher 们一定不会对条件变量（Condition Variable）相关的并发原语感到陌生，例如 Java 的java.utils.concur
   
 
   
@@ -232,12 +244,94 @@
   <div class="me-6 my-2">
     <i class="fas fa-calendar me-1"></i>
     <span
-      >2022-07-08</span
+      >2024-03-10</span
     >
   </div>
   <div class="me-6 my-2">
     <i class="fas fa-clock me-1"></i>
-    <span>4分钟阅读时长</span>
+    <span>9分钟阅读时长</span>
+  </div>
+
+  
+
+  
+</div>
+
+  
+</div>
+
+  </div>
+
+  
+</div>
+  </div>
+  
+  <div class="py-6">
+    <div class="flex flex-col-reverse lg:flex-row justify-between">
+  
+  <div class="w-full ">
+    <div class="prose">
+  <a href="/posts/chunwan/" class="no-underline">
+    <h3 class="mt-0">一文揭秘刘谦春晚魔术背后到底发生了什么</h3>
+  </a>
+  
+    刘谦老师在今年央视龙年春晚的魔术表演绝对是是最精彩的节目之一，尤其是第二个魔术，创新性地让现场、电视机前的观众都参与到了魔术表演中，直观感受到了魔术表
+  
+
+  
+    <div
+  class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
+>
+  <div class="me-6 my-2">
+    <i class="fas fa-calendar me-1"></i>
+    <span
+      >2024-02-10</span
+    >
+  </div>
+  <div class="me-6 my-2">
+    <i class="fas fa-clock me-1"></i>
+    <span>5分钟阅读时长</span>
+  </div>
+
+  
+
+  
+</div>
+
+  
+</div>
+
+  </div>
+
+  
+</div>
+  </div>
+  
+  <div class="py-6">
+    <div class="flex flex-col-reverse lg:flex-row justify-between">
+  
+  <div class="w-full ">
+    <div class="prose">
+  <a href="/posts/golang/go_errgroup/" class="no-underline">
+    <h3 class="mt-0">「Go系列」扩展并发原语之errgroup.Group的实战与源码解读</h3>
+  </a>
+  
+    Go 语言是如今高并发服务的首选编程语言之一，其自带的go关键字、channel 类型以及标准库sync和sync/atomic中较为丰富的并发原语，使得 Gopher
+  
+
+  
+    <div
+  class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
+>
+  <div class="me-6 my-2">
+    <i class="fas fa-calendar me-1"></i>
+    <span
+      >2023-12-17</span
+    >
+  </div>
+  <div class="me-6 my-2">
+    <i class="fas fa-clock me-1"></i>
+    <span>17分钟阅读时长</span>
   </div>
 
   
@@ -272,11 +366,20 @@
       <li class="page-item active">
         <a aria-current="page" aria-label="Page 2" class="page-link" role="button">2</a>
       </li>
-      <li class="page-item disabled">
-        <a aria-disabled="true" aria-label="Next" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&raquo;</span></a>
+      <li class="page-item">
+        <a href="/posts/page/3/" aria-label="Page 3" class="page-link" role="button">3</a>
       </li>
-      <li class="page-item disabled">
-        <a aria-disabled="true" aria-label="Last" class="page-link" role="button" tabindex="-1"><span aria-hidden="true">&raquo;&raquo;</span></a>
+      <li class="page-item">
+        <a href="/posts/page/4/" aria-label="Page 4" class="page-link" role="button">4</a>
+      </li>
+      <li class="page-item">
+        <a href="/posts/page/5/" aria-label="Page 5" class="page-link" role="button">5</a>
+      </li>
+      <li class="page-item">
+        <a href="/posts/page/3/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
+      </li>
+      <li class="page-item">
+        <a href="/posts/page/5/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
       </li>
     </ul>
 

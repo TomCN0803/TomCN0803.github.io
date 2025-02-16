@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html
+  lang="zh"
+  dir="ltr"
+  
+><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<title>「Go系列」扩展并发原语之errgroup.Group的实战与源码解读 | Tom&#39;s Blog</title>
+
+<meta name="generator" content="Hugo Eureka 0.9.3" />
+<link rel="stylesheet" href="/css/eureka.min.9cec6350e37e534b0338fa9a085bf06855de3b0f2dcf857e792e5e97b07ea905d4d5513db554cbc26a9c3da622bae92d.css">
+<script defer src="/js/eureka.min.fa9a6bf6d7a50bb635b4cca7d2ba5cf3dfb095ae3798773f1328f7950028b48c17d06276594e1b5f244a25a6c969a705.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload"
+  href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&amp;family=Noto&#43;Serif&#43;SC:wght@400;600;700&amp;display=swap"
+  as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.4.0/build/styles/base16/solarized-light.min.css"
+   media="print"
+  onload="this.media='all';this.onload=null" crossorigin>
+<script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.4.0/build/highlight.min.js"
+   crossorigin></script>
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.4.0/build/languages/dart.min.js"
+     crossorigin></script>
+<link rel="stylesheet" href="/css/highlightjs.min.2958991528e43eb6fc9b8c4f2b8e052f79c4010718e1d1e888a777620e9ee63021c2c57ec7417a3108019bb8c41943e6.css" media="print" onload="this.media='all';this.onload=null">
+
+
+<script defer type="text/javascript" src="/js/fontawesome.min.2a238597616760e3d50e3d131b417d804ba779c0b2b51638945f9c61b3f666f2b6fcacb11bfe9efe86d4f4e4f44534a7.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"
+   integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ"  media="print"
+  onload="this.media='all';this.onload=null" crossorigin>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js" 
+  integrity="sha384-VQ8d8WVFw0yHhCk5E8I86oOhv48xLpnDZx5T9GogA/Y84DcCKWXDmSDfn13bzFZY"  crossorigin></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js"
+   integrity="sha384-&#43;XBljXPPiv&#43;OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR"  crossorigin></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false },
+        { left: "\\(", right: "\\)", display: false },
+        { left: "\\[", right: "\\]", display: true }
+      ],
+    });
+  });
+</script>
+
+
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@8.14.0/dist/mermaid.min.js" 
+  integrity="sha384-atOyb0FxAgN9LyAc6PEf9BjgwLISyansgdH8/VXQH8p2o5vfrRgmGIJ2Sg22L0A0"  crossorigin></script>
+
+
+<link rel="icon" type="image/png" sizes="32x32" href="/images/icon_hu64421c6c7700f606f0ad45d807017b09_5843_32x32_fill_box_center_3.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/icon_hu64421c6c7700f606f0ad45d807017b09_5843_180x180_fill_box_center_3.png">
+
+<meta name="description"
+  content="Go 语言是如今高并发服务的首选编程语言之一，其自带的go关键字、channel 类型以及标准库sync和sync/atomic中较为丰富的并发原语，使得 Gopher">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1 ,
+      "name":"文章",
+      "item":"/posts/"},{
+      "@type": "ListItem",
+      "position": 2 ,
+      "name":"「Go系列」扩展并发原语之errgroup.Group的实战与源码解读",
+      "item":"/posts/golang/go_errgroup/"}]
+}
+</script>
+
+
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "/posts/golang/go_errgroup/"
+    },
+    "headline": "「Go系列」扩展并发原语之errgroup.Group的实战与源码解读 | Tom\u0027s Blog","datePublished": "2023-12-17T20:00:00+08:00",
+    "dateModified": "2023-12-17T20:00:00+08:00",
+    "wordCount":  8206 ,
+    "publisher": {
+        "@type": "Person",
+        "name": "WANG Chucheng",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "/images/icon.png"
+        }
+        },
+    "description": "Go 语言是如今高并发服务的首选编程语言之一，其自带的go关键字、channel 类型以及标准库sync和sync\/atomic中较为丰富的并发原语，使得 Gopher"
+}
+</script><meta property="og:title" content="「Go系列」扩展并发原语之errgroup.Group的实战与源码解读 | Tom&#39;s Blog" />
+<meta property="og:type" content="article" />
+
+
+<meta property="og:image" content="/images/icon.png">
+
+
+<meta property="og:url" content="/posts/golang/go_errgroup/" />
+
+
+
+
+<meta property="og:description" content="Go 语言是如今高并发服务的首选编程语言之一，其自带的go关键字、channel 类型以及标准库sync和sync/atomic中较为丰富的并发原语，使得 Gopher" />
+
+
+
+
+<meta property="og:locale" content="zh" />
+
+
+
+
+<meta property="og:site_name" content="Tom&#39;s Blog" />
+
+
+
+
+
+
+<meta property="article:published_time" content="2023-12-17T20:00:00&#43;08:00" />
+
+
+<meta property="article:modified_time" content="2023-12-17T20:00:00&#43;08:00" />
+
+
+
+<meta property="article:section" content="posts" />
+
+
+
+
+
+  <body class="flex min-h-screen flex-col">
+    <header
+      class="min-h-16 pl-scrollbar bg-secondary-bg fixed z-50 flex w-full items-center shadow-sm"
+    >
+      <div class="mx-auto w-full max-w-screen-xl"><script>
+    let storageColorScheme = localStorage.getItem("lightDarkMode")
+    if (((storageColorScheme == 'Auto' || storageColorScheme == null) && window.matchMedia("(prefers-color-scheme: dark)").matches) || storageColorScheme == "Dark") {
+        document.getElementsByTagName('html')[0].classList.add('dark')
+    }
+</script>
+<nav class="flex items-center justify-between flex-wrap px-4 py-4 md:py-0">
+    <a href="/" class="me-6 text-primary-text text-xl font-bold">Tom&#39;s Blog</a>
+    <button id="navbar-btn" class="md:hidden flex items-center px-3 py-2" aria-label="Open Navbar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div id="target"
+        class="hidden block md:flex md:grow md:justify-between md:items-center w-full md:w-auto text-primary-text z-20">
+        <div class="md:flex md:h-16 text-sm md:grow pb-4 md:pb-0 border-b md:border-b-0">
+            <a href="/#about" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  border-transparent  me-4">关于我</a>
+            <a href="/posts/" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  selected-menu-item  me-4">文章</a>
+        </div>
+
+        <div class="flex">
+            <div class="relative pt-4 md:pt-0">
+                <div class="cursor-pointer hover:text-eureka" id="lightDarkMode">
+                    <i class="fas fa-adjust"></i>
+                </div>
+                <div class="fixed hidden inset-0 opacity-0 h-full w-full cursor-default z-30" id="is-open">
+                </div>
+                <div class="absolute flex flex-col start-0 md:start-auto end-auto md:end-0 hidden bg-secondary-bg w-48 rounded py-2 border border-tertiary-bg cursor-pointer z-40"
+                    id='lightDarkOptions'>
+                    <span class="px-4 py-1 hover:text-eureka" name="Light">浅色</span>
+                    <span class="px-4 py-1 hover:text-eureka" name="Dark">深色</span>
+                    <span class="px-4 py-1 hover:text-eureka" name="Auto">自动</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed hidden inset-0 opacity-0 h-full w-full cursor-default z-0" id="is-open-mobile">
+    </div>
+
+</nav>
+<script>
+    
+    let element = document.getElementById('lightDarkMode')
+    if (storageColorScheme == null || storageColorScheme == 'Auto') {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.matchMedia("(prefers-color-scheme: dark)").addEventListener('change', switchDarkMode)
+        })
+    } else if (storageColorScheme == "Light") {
+        element.firstElementChild.classList.remove('fa-adjust')
+        element.firstElementChild.setAttribute("data-icon", 'sun')
+        element.firstElementChild.classList.add('fa-sun')
+    } else if (storageColorScheme == "Dark") {
+        element.firstElementChild.classList.remove('fa-adjust')
+        element.firstElementChild.setAttribute("data-icon", 'moon')
+        element.firstElementChild.classList.add('fa-moon')
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        getcolorscheme();
+        switchBurger();
+    });
+</script>
+</div>
+    </header>
+    <main class="grow pt-16">
+        <div class="pl-scrollbar">
+          <div class="mx-auto w-full max-w-screen-xl lg:px-4 xl:px-8">
+  
+  
+  <div class="grid grid-cols-2 gap-4 lg:grid-cols-8 lg:pt-12">
+    <div
+      class="lg:col-start-2 bg-secondary-bg col-span-2 rounded px-6 py-8 lg:col-span-6"
+    >
+      <article class="prose">
+  <h1 class="mb-4">「Go系列」扩展并发原语之errgroup.Group的实战与源码解读</h1>
+
+  <div
+  class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
+>
+  <div class="me-6 my-2">
+    <i class="fas fa-calendar me-1"></i>
+    <span
+      >2023-12-17</span
+    >
+  </div>
+  <div class="me-6 my-2">
+    <i class="fas fa-clock me-1"></i>
+    <span>17分钟阅读时长</span>
+  </div>
+
+  
+
+  
+</div>
+
+
+  
+  
+
+  <p>Go 语言是如今高并发服务的首选编程语言之一，其自带的<code>go</code>关键字、channel 类型以及标准库<code>sync</code>和<code>sync/atomic</code>中较为丰富的并发原语，使得 Gopher 们能够很顺手地编写出并发程序。Go 官方也利用了这些特性，维护了一个扩展的并发原语库，这里面提供了功能更丰富、使用更便利、封装性更好的并发原语，该扩展并发库的地址为<a href="https://pkg.go.dev/golang.org/x/sync" title="`golang.org/x/sync`">golang.org/x/sync</a>。</p>
+<p>本文就将对 Go 官方扩展并发库<code>golang.org/x/sync</code>中<code>errgroup.Group</code>的使用与实现进行讲解。在阅读本文时，希望你已经对 Go 基础（如 channel）以及标准库并发原语（如<code>WaitGroup</code>、<code>Once</code>、<code>Context</code>）有一定的了解。</p>
+<h2 id="回顾-syncwaitgroup">回顾 sync.WaitGroup</h2>
+<p>在开始了解<code>errgroup.Group</code>之前，我们先回顾一下 Go 标准库<code>sync</code>包中<code>WaitGroup</code>在并发编程中的使用。</p>
+<p>如同其名字一样，<code>sync.WaitGroup</code>用于等待一组 goroutine 的执行结束。如下面的一段代码中，我们在<code>main</code>函数的主 goroutine 中启动了 4 个 goroutine，使用<code>sync.WaitGroup</code>中的<code>Wait</code>方法，等待 4 个 goroutine 的执行结束，否则<code>main</code>函数执行结束程序会直接退出，并不会等待启动的 4 个 goroutine 执行完成：</p>
+<pre><code class="language-go">package main
+
+import (
+ &quot;fmt&quot;
+ &quot;sync&quot;
+ &quot;time&quot;
+)
+
+func main() {
+ var wg sync.WaitGroup
+ wg.Add(4) // WaitGroup计数加4，启动4个goroutines
+ for i := 0; i &lt; 4; i++ {
+  go func(i int) {
+   defer wg.Done() // WaitGroup计数减1，表示一个goroutine执行完成
+   time.Sleep(500 * time.Millisecond)
+   fmt.Println(&quot;goroutine&quot;, i, &quot;work done.&quot;)
+  }(i)
+ }
+
+ wg.Wait() // 阻塞，等待所有goroutine执行完成
+}
+
+// OUTPUT：
+// goroutine 1 work done.
+// goroutine 2 work done.
+// goroutine 3 work done.
+// goroutine 0 work done.
+</code></pre>
+<p>简述<code>sync.WaitGroup</code>的原理就是在其内部有着一个计数器，用于记录当前未执行完成的 goroutine 数量，使用者使用封装的<code>Add</code>和<code>Done</code>方法分别对这个计数器进行加减，当计数器为减为<code>0</code>时，唤醒调用<code>Wait</code>方法阻塞的 goroutine。</p>
+<h2 id="errgroupgroup-的使用">errgroup.Group 的使用</h2>
+<p>Go 扩展并发库中<code>errgroup.Group</code>原语有着与标准库<code>sync.WaitGroup</code>同样是对一组<code>goroutine</code>进行管理，且有着相似的 API，但前者提供了功能更强大、使用更便捷的封装：</p>
+<ul>
+<li>封装<code>Add</code>与<code>Done</code>方法，无需手动调用；</li>
+<li>更方便的错误捕获与处理；</li>
+<li>可使用<code>Context</code>取消 goroutine 的执行；</li>
+<li>限制同一时刻并行执行的 goroutine 数量。</li>
+</ul>
+<p>下面来通过一个简单的例子看一下<code>errgroup.Group</code>的基础使用：</p>
+<pre><code class="language-go">package main
+
+import (
+ &quot;errors&quot;
+ &quot;fmt&quot;
+ &quot;time&quot;
+
+ &quot;golang.org/x/sync/errgroup&quot;
+)
+
+func main() {
+ var eg errgroup.Group
+ for i := 0; i &lt; 4; i++ {
+        // 注意闭包中的变量捕获问题 https://golang.org/doc/faq#closures_and_goroutines
+  i := i
+  eg.Go(func() error {
+   if i == 2 {
+    // 其中一个 goroutine 返回错误
+    return errors.New(&quot;goroutine 2 got an error&quot;)
+   }
+   time.Sleep(500 * time.Millisecond)
+   fmt.Println(&quot;goroutine&quot;, i, &quot;work done.&quot;)
+   return nil
+  })
+ }
+
+ if err := eg.Wait(); err != nil {
+  fmt.Println(err.Error())
+  return
+ }
+}
+
+// OUTPUT：
+// goroutine 3 work done.
+// goroutine 1 work done.
+// goroutine 0 work done.
+// goroutine 2 got an error
+</code></pre>
+<p>上述程序与上小节<code>sync.WaitGroup</code>例子基本一致，只不过令<code>i=2</code>时启动的 goroutine 返回一个错误，以展示<code>errgroup.Group</code>的错误处理。<code>errgroup.Group</code>可以直接通过<code>var</code>声明变量进行使用（称之为零值初始化），使用<code>Go</code>方法启动一个 goroutine。在主 goroutine 中调用<code>Wait</code>方法等待所有 goroutine 执行完成，不同与<code>sync.WaitGroup</code>中的<code>Wait</code>方法，<code>errgroup.Group</code>的<code>Wait</code>会返回一个<code>error</code>，其值是所有启动的 goroutine 中返回的第一个错误。这里值得注意的是，例如这段示例代码，即使 goroutine 2 已经返回了错误，<code>Wait</code>也会等待其它启动的 goroutine 结束才会结束阻塞，返回<code>error</code>。</p>
+<p>除了零值初始化，<code>errgroup</code>提供了另外一种初始化<code>errgroup.Group</code>的函数——<code>WithContext</code>，向该函数传入一个<code>Context</code>，然后会返回一个<code>errgroup.Group</code>实例，以及一个从传入的<code>Context</code>派生出来的可以被取消的<code>Context</code>（称为<code>cancelCtx</code>）：</p>
+<pre><code class="language-go">func WithContext(ctx context.Context) (*Group, context.Context)
+</code></pre>
+<p>通过这种方式初始化的<code>errgroup.Group</code>可以通过返回的<code>cancelCtx</code>对 goroutine 的执行进行控制，且如果某个执行的 goroutine 返回了错误，那么都会调用这个<code>cancelCtx</code>对应的<code>cancel</code>函数，即触发<code>cancelCtx</code>的取消。还是以上面的实例代码为基础，这次我们希望当<code>i=2</code>的 goroutine 返回错误后，其它 goroutine 立刻终止并返回：</p>
+<pre><code class="language-go">package main
+
+import (
+ &quot;context&quot;
+ &quot;errors&quot;
+ &quot;fmt&quot;
+ &quot;time&quot;
+
+ &quot;golang.org/x/sync/errgroup&quot;
+)
+
+func main() {
+ eg, ctx := errgroup.WithContext(context.Background())
+ for i := 0; i &lt; 4; i++ {
+  i := i
+  eg.Go(func() error {
+   if i == 2 {
+    return errors.New(&quot;goroutine 2 got an error&quot;)
+   }
+   select {
+   case &lt;-time.After(500 * time.Millisecond):
+   case &lt;-ctx.Done():
+    return ctx.Err()
+   }
+   fmt.Println(&quot;goroutine&quot;, i, &quot;work done.&quot;)
+   return nil
+  })
+ }
+
+ if err := eg.Wait(); err != nil {
+  fmt.Println(err.Error())
+  return
+ }
+}
+
+// OUTPUT：
+// goroutine 2 got an error
+</code></pre>
+<p>上述代码使用了一个<code>timer</code>——<code>time.After(500 * time.Millisecond)</code>来模拟了 goroutine 的一次具体工作，使用<code>select</code>同时对<code>timer</code>和<code>cancelCtx</code>进行了监听。由于<code>i=2</code>的 goroutine 会立刻返回错误，执行时间肯定远快于<code>500ms</code>，因此其它 goroutine 会首先监听到<code>cancelCtx</code>事件，并在<code>timer</code>结束前返回。</p>
+<p><code>errgroup.Group</code>默认可以通过<code>Go</code>方法启动无限多个 goroutine，但在处理数据量比较大时，无节制地启用 goroutine 很可能会将主机资源耗尽，因此<code>errgroup.Group</code>还提供了<code>SetLimit(n int)</code>方法，可以限制当前<code>errgroup.Group</code>实例下活跃 goroutine 的数量最大为<code>n</code>，当传入值为负数则代表没有限制。若当前活跃的 goroutine 数量已经达到了<code>n</code>，此时再调用<code>Go</code>方法便会被阻塞住，直到活跃 goroutine 数量降至<code>n</code>以下。</p>
+<p>然而在实际开发场景中，我们并不是都期望阻塞的，因此配合<code>SetLimit</code>方法，<code>errgroup.Group</code>同样提供了一个<code>TryGo</code>方法：</p>
+<pre><code class="language-go">func (g *Group) TryGo(f func() error) bool
+</code></pre>
+<p><code>TryGo</code>会尝试执行传入的<code>f</code>函数，其仅会在当前活跃 goroutine 数量符合限制时才会启动 goroutine 去执行<code>f</code>，否则直接非阻塞地返回<code>false</code>。这里要注意的是，<code>TryGo</code>返回的布尔值只是用于代表该 goroutine 是否被成功启动，而执行成功与否是该返回值是无法体现的。</p>
+<p><code>errgroup.Group</code>虽然提供了对错误的返回，但是只能返回所有启动的 goroutine 产生的第一个错误，如果不做额外扩展的话后面所产生的错误都会被丢弃，然而在很多时候，获取每个 goroutine 的错误情况又是很必要的。解决思路其实也不复杂，我们可以创建一个长度与所启动 goroutine 数量相同的切片（如果数量固定也可以使用数组，这样性能更好）用于存放每个 goroutine 的错误情况。每个 goroutine 在执行完成后，将其错误值存放到切片对应的索引位置。</p>
+<p>下面这段代码中启动了 10 个 goroutine，我们令<code>i</code>为偶数时的 goroutine 返回错误：</p>
+<pre><code class="language-go">package main
+
+import (
+ &quot;errors&quot;
+ &quot;fmt&quot;
+
+ &quot;golang.org/x/sync/errgroup&quot;
+)
+
+func main() {
+ var g struct {
+  eg   errgroup.Group
+  errs []error
+ }
+
+ const jobCount = 10 // 启动goroutine的数量
+
+ g.errs = make([]error, jobCount) // 用于保存每个goroutine的错误情况
+ for i := 0; i &lt; jobCount; i++ {
+  i := i
+  g.eg.Go(func() (err error) {
+   defer func() {
+    g.errs[i] = err // 保存每个goroutine的错误情况至errs对应的位置
+   }()
+   if i%2 == 0 {
+    err = fmt.Errorf(&quot;goroutine %d got an error&quot;, i)
+   }
+   return
+  })
+ }
+
+ if err := g.eg.Wait(); err != nil {
+  fmt.Println(errors.Join(g.errs...).Error())
+ }
+}
+
+// OUTPUT:
+// goroutine 0 got an error
+// goroutine 2 got an error
+// goroutine 4 got an error
+// goroutine 6 got an error
+// goroutine 8 got an error
+</code></pre>
+<p>除了对多个错误进行捕获外，同样的思路也可以用于保存 goroutine 所产生的计算结果。</p>
+<h2 id="errgroupgroup-实战">errgroup.Group 实战</h2>
+<p>在本节我们将利用<code>errgroup.Group</code>完成一个单词数量统计的小项目。需求是实现一个二进制程序（这里起名<code>wc</code>，意为 word count），可以读取文本文件，并对其中的单词进行词频统计，并打印在标准输出，例如：</p>
+<pre><code class="language-shell">$ ./wc -f article.txt
+a                 9
+above             3
+abundantly        6
+after             3
+be                4
+bearing           2
+beast             4
+</code></pre>
+<p>为了实现该需求，我们采用的是 MapReduce 的思想，对输入的文本内容主要进行以下几个步骤的处理：</p>
+<ol>
+<li>Map 阶段：将输入的文本进行单词分割，将每个映射为“单词——频数”的键值对（表示为<code>(word: count)</code>），每个单词初始频次都是<code>1</code>；</li>
+<li>Sort 阶段：将所有<code>(word: count)</code>以<code>word</code>进行排序；</li>
+<li>Reduce 阶段：将排序好的<code>(word: count)</code>按照<code>word</code>进行<code>count</code>的合并。</li>
+</ol>
+<blockquote>
+<p>MapReduce 是一种处理数据的方式，最早是由 Google 公司研究提出的一种面向大规模数据处理的并行计算模型和方法，开源的版本是 <a href="https://github.com/apache/hadoop" title="Hadoop">Hadoop</a>。本节项目的实现就是采用了 MapReduce 的思想，实现了一个单机单进程的 MapReduce。</p>
+</blockquote>
+<p>由于篇幅限制，文章中将只展示核心部分代码，完整代码请详见 GitHub 仓库：<a href="https://github.com/TomCN0803/wc-example" title="wc-example">wc-example</a>。</p>
+<p>我们先来看一下主函数<code>main</code>的大致代码：</p>
+<pre><code class="language-go">func main() {
+    // 省略了部分非核心代码，详见代码仓库
+
+ f, err := os.Open(inputFile)
+ if err != nil {
+  _, _ = fmt.Fprintf(os.Stderr, &quot;failed to open file: %s\n&quot;, err.Error())
+  os.Exit(1)
+ }
+ defer f.Close()
+
+ eg, ctx := errgroup.WithContext(ctx)
+ eg.SetLimit(runtime.GOMAXPROCS(0)) // 设置 goroutine 数量为 CPU 核心数
+ input := getInputStream(ctx, eg, f)
+ mapped := mapper(ctx, eg, input, mapFn)
+ sorted := sorter(ctx, eg, mapped)
+ reduced := reducer(ctx, eg, sorted)
+
+ eg.Go(func() error {
+  for wc := range reduced {
+   if _, err := fmt.Printf(&quot;%-15s%4d\n&quot;, wc.word, wc.count); err != nil {
+    return err
+   }
+  }
+  return nil
+ })
+
+ if err := eg.Wait(); err != nil {
+  _, _ = fmt.Fprintf(os.Stderr, &quot;failed to process file: %s\n&quot;, err.Error())
+  os.Exit(1)
+ }
+}
+</code></pre>
+<p>主函数中比较核心的代码就是初始化<code>errgroup.Group</code>实例<code>eg</code>后，对<code>getInputStream</code>、<code>mapper</code>、<code>sorter</code>和<code>reducer</code>函数的调用了。其中<code>getInputStream</code>是将输入文本转化为可读 channel，后三者则分别对应了 MapReduce 的三个步骤，它们每个步骤所产生的 channel 都作为下一步操作的输入 channel，<code>reducer</code>产生的可读 channel 最终由<code>eg</code>启动的另一 goroutine 进行读取与输出。以上正是采用了 Go 官方推荐的并发编程范式之一：<a href="https://go.dev/blog/pipelines" title="管道模式">管道模式</a>。</p>
+<p>下面我们将分别对这四个关键函数进行展开。</p>
+<h3 id="读取文件">读取文件</h3>
+<pre><code class="language-go">func getInputStream(ctx context.Context, eg *errgroup.Group, r io.Reader) &lt;-chan string {
+ ch := make(chan string)
+
+ eg.Go(func() error {
+  defer close(ch)
+  sc := bufio.NewScanner(r)
+  for sc.Scan() {
+   line := sc.Text()
+   select {
+   case ch &lt;- line:
+   case &lt;-ctx.Done():
+    return ctx.Err()
+   }
+  }
+  return sc.Err()
+ })
+
+ return ch
+}
+</code></pre>
+<p><code>getInputStream</code>先初始化了一个<code>chan string</code>类型的 channel <code>ch</code>，随后通过<code>eg.Go</code>启动了一个 goroutine 来读取 r 中的数据。该 goroutine 中的闭包函数使用了<code>bufio.Scanner</code>进行文件读取，每次读取一整行<code>line</code>后就会向<code>ch</code>发送，这里需要使用 select 判断下传入的<code>eg</code>的上下文<code>ctx</code>是否被取消，如果被取消了就直接返回<code>ctx.Err()</code>，这种处理在后续其它函数中是很常见的。</p>
+<h3 id="map-阶段">Map 阶段</h3>
+<p>在 map 阶段，我们需要将输入的文本进行单词分割，并将每个单词映射为“单词——频数”的键值对，即<code>wordCount</code>类型：</p>
+<pre><code class="language-go">type wordCount struct {
+ word  string
+ count int
+}
+</code></pre>
+<pre><code class="language-go">var nonAlpha = regexp.MustCompile(&quot;[^a-zA-Z]+&quot;)
+
+func mapFn(line string) []wordCount {
+ var result []wordCount
+ for _, w := range strings.Fields(line) {
+  // 通过正则替换掉掉非字母字符，并转换成小写
+  w = strings.ToLower(nonAlpha.ReplaceAllString(w, &quot;&quot;))
+  if w != &quot;&quot; {
+   result = append(result, wordCount{word: w, count: 1})
+  }
+ }
+ return result
+}
+
+func mapper(ctx context.Context, eg *errgroup.Group, input &lt;-chan string, fn func(string) []wordCount) &lt;-chan wordCount {
+ ch := make(chan wordCount)
+
+ eg.Go(func() error {
+  defer close(ch)
+  for l := range input {
+   for _, wc := range fn(l) {
+    select {
+    case ch &lt;- wc:
+    case &lt;-ctx.Done():
+     return ctx.Err()
+    }
+   }
+  }
+  return nil
+ })
+
+ return ch
+}
+</code></pre>
+<p><code>mapper</code>函数接收文件输入的只读 channel <code>input</code>，并返回一个元素类型为<code>wordCount</code>的 channel <code>ch</code>。<code>mapper</code>函数启动了一个 goroutine，其闭包函数中使用了<code>fn</code>函数对<code>input</code>中的每一行文本进行处理。</p>
+<p>为了使得代码清晰，这里将<code>fn</code>函数的具体实现与<code>mapper</code>解耦。其具体实现是<code>mapFn</code>函数，它将每一行文本分割为独立的单词，使用正则表达式将非字母字符替换为空字符串，并将单词统一转换为小写，最后将每个单词映射为<code>wordCount</code>类型的键值对。</p>
+<h3 id="sort-阶段">Sort 阶段</h3>
+<p>在<code>mapper</code>函数中，我们将每一行文本映射为了多个<code>wordCount</code>类型的键值对，但是这些键值对是无序的，因此需要在<code>sorter</code>函数中对其进行排序：</p>
+<pre><code class="language-go">func sorter(ctx context.Context, eg *errgroup.Group, input &lt;-chan wordCount) &lt;-chan wordCount {
+ ch := make(chan wordCount)
+
+ eg.Go(func() error {
+  defer close(ch)
+  wcHeap := new(wordCountHeap)
+  for wc := range input {
+   select {
+   case &lt;-ctx.Done():
+    return ctx.Err()
+   default:
+    heap.Push(wcHeap, wc)
+   }
+  }
+
+  for wcHeap.Len() &gt; 0 {
+   select {
+   case ch &lt;- heap.Pop(wcHeap).(wordCount):
+   case &lt;-ctx.Done():
+    return ctx.Err()
+   }
+  }
+
+  return nil
+ })
+
+ return ch
+}
+</code></pre>
+<p>在这段代码中我们从只读 channel <code>input</code>中读取<code>wordCount</code>类型的键值对，然后将其放入一个<code>wordCountHeap</code>类型的最小堆中，最后从最小堆中取出并发送到返回的 channel <code>ch</code>中。我们需要注意这里的同步关系——从堆中读取数据必须发生在向堆中写完所有 map 数据的之后，也就是意味着 reduce 必须发生在 sort 完成之后。</p>
+<p><code>sorter</code>排序所使用的<code>wordCountHeap</code>类型最小堆实现了标准库<code>heap</code>包中的<code>heap.Interface</code>接口。为了实现起来方便，我们这里直接基于 slice 实现了一个最小堆：</p>
+<pre><code class="language-go">type wordCountHeap []wordCount
+
+func (w *wordCountHeap) Len() int {
+ return len(*w)
+}
+
+func (w *wordCountHeap) Less(i int, j int) bool {
+ return (*w)[i].word &lt; (*w)[j].word
+}
+func (w *wordCountHeap) Swap(i int, j int) {
+ (*w)[i], (*w)[j] = (*w)[j], (*w)[i]
+}
+
+func (w *wordCountHeap) Pop() any {
+ v := (*w)[len(*w)-1]
+ *w = (*w)[:len(*w)-1]
+ return v
+}
+
+func (w *wordCountHeap) Push(x any) {
+ *w = append(*w, x.(wordCount))
+}
+
+</code></pre>
+<p>基于 slice 的最小堆<code>wordCountHeap</code>会将数据全部存于内存中，在实际生产中可能会遇到很大的文件，这时候我们就需要考虑其它的堆实现方式了，不过这不是本文的重点。</p>
+<h3 id="reduce-阶段">Reduce 阶段</h3>
+<p>Reduce 阶段会将排序后的 wordCount 键值对按照 word 进行 count 的合并，最终得到每个 word 的总 count，reduce 阶段处理后产生的 channel <code>ch</code>中的数据关于<code>word</code>是有序且唯一的：</p>
+<pre><code class="language-go">func reducer(ctx context.Context, eg *errgroup.Group, input &lt;-chan wordCount) &lt;-chan wordCount {
+ ch := make(chan wordCount)
+
+ eg.Go(func() error {
+  defer close(ch)
+  var wc wordCount
+  for in := range input {
+   if wc.word != in.word {
+    if wc.word != &quot;&quot; {
+     select {
+     case ch &lt;- wc:
+     case &lt;-ctx.Done():
+      return ctx.Err()
+     }
+    }
+    wc = in
+   }
+   wc.count += in.count
+  }
+  return nil
+ })
+
+ return ch
+}
+</code></pre>
+<p>由于篇幅限制，这里只展示了<code>wc</code>的核心代码，主要展示了<code>errgroup.Group</code>实现 MapReduce 的核心思路。完整的项目除了文中数据处理的核心代码，还需要考虑 flag 参数解析、日志打印、程序优雅退出等，这些代码都可以在仓库中找到。</p>
+<h2 id="源码走读">源码走读</h2>
+<h3 id="group-结构体">Group 结构体</h3>
+<p>首先来看一下<code>errgroup.Group</code>这个结构体，字段并不复杂，每个字段的意义已经写在了注释当中：</p>
+<pre><code class="language-go">type Group struct {
+ cancel func(error) // cancelCtx的取消函数
+ wg sync.WaitGroup  // 等待goroutine执行
+ sem chan token     // 基于channel的信号量
+ errOnce sync.Once  // 确保err只被赋值一次
+ err     error    // 保存启动的goroutine所返回的第一个错误
+}
+</code></pre>
+<p>我们可以看到，<code>errgroup.Group</code>内部封装了<code>sync.WaitGroup</code>，用于等待 goroutine 的执行；<code>err</code>则用于保存启动的 goroutine 执行所返回的第一个错误，由于多个 goroutine 并发执行，因此使用了<code>sync.Once</code>确保<code>err</code>只被第一个错误赋值；<code>sem</code>是一个基于 channel 实现的信号量，用于控制 goroutine 的并发执行数量，在下文中会有详细的介绍；<code>cancel</code>是当通过<code>WithContext</code>函数初始化时，才会有的<code>cancelCtx</code>的取消函数。</p>
+<p>由此可见，如果我们使用<code>var eg errgroup.Group</code>这样的零值初始化，会默认使<code>cancel</code>和<code>sem</code>为空值<code>nil</code>，即不使用<code>cancelCtx</code>去空值 goroutine 的取消，且 goroutine 并发执行数量也没有限制。</p>
+<h3 id="withcontext">WithContext</h3>
+<p>我们再来看下另一种初始化方式的<code>WithContext</code>函数源码：</p>
+<pre><code class="language-go">func WithContext(ctx context.Context) (*Group, context.Context) {
+ ctx, cancel := withCancelCause(ctx)
+ return &amp;Group{cancel: cancel}, ctx
+}
+
+//go:build go1.20
+func withCancelCause(parent context.Context) (context.Context, func(error)) {
+ return context.WithCancelCause(parent) // 该函数是go1.20版本及以上才提供的
+}
+</code></pre>
+<p>根据传入的父<code>Context</code>，调用<code>withCancelCause</code>函数生成一个可取消的<code>cancelCtx</code>和对应的取消函数<code>cancel</code>，赋值给返回的<code>errgroup.Group</code>实例。</p>
+<p>这个<code>withCancelCause</code>函数根据编译代码所使用的 Go 语言版本，其实现是不同的。例如在上面的代码中是 go1.20 版本及以上的<code>withCancelCause</code>函数实现，它对<a href="https://pkg.go.dev/context#WithCancelCause" title="`context.WithCancelCause`"><code>context.WithCancelCause</code></a>函数进行了封装。<code>context.WithCancelCause</code>函数是 go1.20 版本更新时加入到标准库<code>context</code>中的，与其前辈<code>context.WithCancel</code>函数不同的是，其返回的<code>cancel</code>函数参数可以传入一个<code>error</code>（<code>cancel</code>函数类型为<a href="https://pkg.go.dev/context#CancelCauseFunc" title="`context.CancelCauseFunc`"><code>context.CancelCauseFunc</code></a>），而后者的<code>cacel</code>函数却无法传参（为<a href="https://pkg.go.dev/context#CancelFunc" title="`context.CancelFunc`"><code>context.CancelFunc</code></a>类型）。<code>context.CancelCauseFunc</code>类型的取消函数能够传入错误信息，在实际开发中更为实用，因此也推荐大家使用新版本的 Go 进行开发。</p>
+<p>这里也给出 go1.20 版本以下的<code>withCancelCause</code>函数实现，但细节不再赘述：</p>
+<pre><code class="language-go">//go:build !go1.20
+func withCancelCause(parent context.Context) (context.Context, func(error)) {
+ ctx, cancel := context.WithCancel(parent)
+ return ctx, func(error) { cancel() }
+}
+</code></pre>
+<h3 id="go">Go</h3>
+<p>下面我们来看最关键的<code>Go</code>函数的实现：</p>
+<pre><code class="language-go">func (g *Group) Go(f func() error) {
+ if g.sem != nil {
+  g.sem &lt;- token{} // 尝试获取一个资源
+ }
+
+ g.wg.Add(1)
+ go func() {
+  defer g.done()
+
+  if err := f(); err != nil {
+   g.errOnce.Do(func() {
+    g.err = err
+    if g.cancel != nil {
+     g.cancel(g.err)
+    }
+   })
+  }
+ }()
+}
+</code></pre>
+<p>抛开对信号量<code>sem</code>的操作，<code>Go</code>函数实际上就是对<code>sync.WaitGroup</code>的封装。使用<code>Add(1)</code>增加一次计数后，启动一个 goroutine 去执行传入的函数<code>f</code>。如果函数<code>f</code>的执行返回了错误，那么将在<code>errOnce.Do</code>中尝试以下两步处理：</p>
+<ul>
+<li>对内部的<code>err</code>进行赋值。由于<code>sync.Once</code>在并发场景下的单例性，只有所有 goroutine 的第一个错误会被赋值给<code>err</code>；</li>
+<li>如果内部<code>cancel</code>函数不为空值<code>nil</code>，那么就执行<code>cancel</code>函数，传入<code>err</code>。同样由于<code>sync.Once</code>在并发场景下的单例性，只有所有 goroutine 的第一个错误会被作为<code>cancel</code>的错误原因。</li>
+</ul>
+<p>以上处理完成后，会执行<code>defer</code>执行的<code>g.done</code>函数：</p>
+<pre><code class="language-go">func (g *Group) done() {
+ if g.sem != nil {
+  &lt;-g.sem // 释放一个资源
+ }
+ g.wg.Done()
+}
+</code></pre>
+<p><code>g.done</code>函数的实现很简单，忽略信号量<code>sem</code>的操作，就只是执行了<code>wg.Done</code>。</p>
+<h3 id="wait">Wait</h3>
+<p>下面我们看下用于等待<code>Go</code>函数所启动的 goroutine 执行完成的<code>Wait</code>函数的实现：</p>
+<pre><code class="language-go">func (g *Group) Wait() error {
+ g.wg.Wait()
+ if g.cancel != nil {
+  g.cancel(g.err)
+ }
+ return g.err
+}
+</code></pre>
+<p>同样不复杂，<code>Wait</code>的阻塞等待就是依靠<code>wg.Wait</code>，当 goroutine 执行完成，<code>wg.Wait</code>从阻塞中唤醒，此时如果<code>cancel</code>函数不为空，就会执行它。这里要重点注意的是，不论内部的错误<code>err</code>是否为<code>nil</code>，<code>cancel</code>都会执行，并传入<code>err</code>，即<code>cancelCtx</code>都会被取消掉，因此通过<code>WithContext</code>初始化<code>errgroup.Group</code>实例时所返回的<code>cancelCtx</code>请<strong>务必只用于该实例相关的任务执行</strong>。</p>
+<h3 id="基于-channel-的信号量">基于 channel 的信号量</h3>
+<p>接下来我们集中对<code>errgroup.Group</code>内部实现的信号量机制进行讲解。</p>
+<p><code>sem</code>为一个<code>chan token</code>类型的 channel，其中<code>token</code>就是个空的结构体，在 Go 语言中空结构体并不占用实际内存，在我们不关心 channel 值时，将 channel 元素类型设为<code>struct{}</code>是个很好的实践：</p>
+<pre><code class="language-go">type token struct{}
+</code></pre>
+<p>了解 Go 语言 channel 的朋友们应该知道，channel 总共分为<strong>无缓冲</strong>和<strong>有缓冲</strong>两种类型的 channel，简述其区别：</p>
+<ul>
+<li>无缓冲 channel：当向 channel 发送数据时，发送者会被阻塞，直到有接收者接收数据；当从 channel 接收数据时，接收者会被阻塞，直到有发送者发送数据；</li>
+<li>有缓冲 channel：当向 channel 发送数据时，如果 channel 缓冲区未满，发送者不会被阻塞，否则发送者会被阻塞，直到有接收者接收数据；当从有缓冲 channel 接收数据时，如果 channel 缓冲区不为空，接收者不会被阻塞，否则接收者会被阻塞，直到有发送者发送数据。</li>
+</ul>
+<p>根据 channel 的特性，当我们使用<code>make(chan token, n)</code>初始化一个缓冲区大小为<code>n</code>的 channel，如果把缓冲区的槽位看作资源，相当于初始化了一个资源数量为<code>n</code>的信号量。此时向 channel 发送数据可以被看作获取资源，而接收数据则被看作释放资源。如果没有接收者，则前<code>n</code>次向 channel 发送都不会阻塞，而第<code>n+1</code>次发送则会阻塞，实现了资源的限制，直到有 channel 数据被接收。</p>
+<p>在<code>Go</code>方法中，如果<code>sem</code>不为空，首先要向<code>sem</code>中发送一个<code>token{}</code>，相当于获取一个资源，只有获取资源成功才可以继续进行 goroutine 的启动：</p>
+<pre><code class="language-go">func (g *Group) Go(f func() error) {
+ if g.sem != nil {
+  g.sem &lt;- token{}
+ }
+    // 省略后续代码
+}
+</code></pre>
+<p>与<code>Go</code>类似但非阻塞的<code>TryGo</code>方法则使用了<code>select</code>，当获取资源不成功时（<code>sem</code>缓冲区已满无法写入），会走<code>default</code>分支直接返回<code>false</code>，不会被阻塞：</p>
+<pre><code class="language-go">func (g *Group) TryGo(f func() error) bool {
+ if g.sem != nil {
+  select {
+  case g.sem &lt;- token{}:
+  default:
+   return false
+  }
+ }
+    // 剩余方法实现与Go方法基本一致，这里不再展示
+}
+</code></pre>
+<p>与之对应地，在<code>f</code>执行结束后的<code>done()</code>方法中，会从<code>sem</code>中读取一次，相当于释放一个资源。</p>
+<p><code>errgroup.Group</code>在其<code>SetLimit(n)</code>方法中，进行了基于 channel 的信号量的初始化，将<code>sem</code>赋值为一个资源数量为<code>n</code>的信号量：</p>
+<pre><code class="language-go">func (g *Group) SetLimit(n int) {
+ if n &lt; 0 {
+  g.sem = nil
+  return
+ }
+ if len(g.sem) != 0 {
+  panic(fmt.Errorf(&quot;errgroup: modify limit while %v goroutines in the group are still active&quot;, len(g.sem)))
+ }
+ g.sem = make(chan token, n)
+}
+</code></pre>
+<p>根据<code>SetLimit</code>传入的信号量资源个数<code>n</code>的大小，会有以下三种情况：</p>
+<ul>
+<li><code>n &lt; 0</code>：将<code>sem</code>置空，相当于取消信号量，解除了 goroutine 并发执行数量限制；</li>
+<li><code>n = 0</code>：<code>sem</code>将成为一个无缓冲的 channel，此时会阻塞所有资源请求，因此之后必须使用<code>TryGo</code>而非<code>Go</code>，否则会发生死锁导致 panic；</li>
+<li><code>n &gt; 0</code>：初始化资源数量为<code>n</code>的信号量。</li>
+</ul>
+<p><code>SetLimit(n)</code>函数是可以多次执行的，比如我们可以先令<code>n = 3</code>，再令<code>n = 10</code>。但在执行<code>SetLimit</code>时，需要通过<code>len(g.sem) == 0</code>确保当前<code>sem</code>缓冲区中没有数据，即没有正在执行的 goroutine，否则在<code>sem</code>被赋新值后，原<code>sem</code>将不会有接收者，最终将导致 goroutine 无法结束执行。根据源码，如果<code>len(g.sem) != 0</code>，<code>SetLimit</code>函数会直接触发 panic，因此调用<code>SetLimit</code>时需要确定当前没有活跃的 goroutine。</p>
+<h2 id="总结">总结</h2>
+<p>本文详细介绍了 Go 扩展并发库中<code>errgroup.Group</code>原语的基本使用，并基于<code>errgroup.Group</code>实现了一个单词词频统计的小项目，感受了<code>errgroup.Group</code>编写 Go 并发程序的便利性。同时，本文也对<code>errgroup.Group</code>的源码进行了走读，详细介绍了其内部的实现原理，包括<code>errgroup.Group</code>的结构体、<code>WithContext</code>函数、<code>Go</code>函数、<code>Wait</code>函数以及基于 channel 的信号量机制。希望本文能够帮助大家更好地理解<code>errgroup.Group</code>的使用与原理，以及 Go 语言中的并发编程。</p>
+
+</article>
+
+
+      
+
+      
+
+
+
+      
+
+      
+  <div
+    class="-mx-2 mt-4 flex flex-col border-t px-2 pt-4 md:flex-row md:justify-between"
+  >
+    <div>
+      
+        <span class="text-primary-text block font-bold"
+          >上一页</span
+        >
+        <a href="/posts/chunwan/" class="block">一文揭秘刘谦春晚魔术背后到底发生了什么</a>
+      
+    </div>
+    <div class="mt-4 md:mt-0 md:text-right">
+      
+        <span class="text-primary-text block font-bold">下一页</span>
+        <a href="/posts/golang/go_once/" class="block">「Go系列」如何让Go同步原语sync.Once变得更好用？</a>
+      
+    </div>
+  </div>
+
+
+      
+
+
+
+    </div>
+    
+
+    
+    
+  </div>
+
+  
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        hljs.highlightAll();
+      });
+    </script>
+
+          </div>
+        </div>
+      
+    </main>
+    <footer class="pl-scrollbar">
+      <div class="mx-auto w-full max-w-screen-xl"><div class="text-center p-6 pin-b">
+    <p class="text-sm text-tertiary-text">&copy; 2021 <a href="https://www.wangchucheng.com/">WANG Chucheng</a> and <a href="https://www.ruiqima.com/">MA Ruiqi</a>
+ &middot;  Powered by the <a href="https://github.com/wangchucheng/hugo-eureka" class="hover:text-eureka">Eureka</a> theme for <a href="https://gohugo.io" class="hover:text-eureka">Hugo</a></p>
+</div></div>
+    </footer>
+  </body>
+</html>

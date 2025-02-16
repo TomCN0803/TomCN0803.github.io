@@ -114,7 +114,7 @@
 
 
 
-<meta property="og:updated_time" content="2022-08-14T19:13:05&#43;08:00" />
+<meta property="og:updated_time" content="2024-09-22T12:00:00&#43;08:00" />
 
 
 
@@ -297,7 +297,7 @@
       <div class="py-8 text-lg leading-normal">
         <ul>
 <li>✍️ 微信公众号：凑个整数1024</li>
-<li>📺 B 站技术分享：<a href="https://space.bilibili.com/5613372">TomCN0803</a></li>
+<li>📺 B 站技术分享：<span style="color: blue"><u><a href="https://space.bilibili.com/5613372">TomCN0803</a></u></span></li>
 </ul>
 
       </div>
@@ -597,11 +597,11 @@
   
   <div class="w-full ">
     <div class="prose">
-  <a href="/posts/golang/go_map/" class="no-underline">
-    <h3 class="mt-0">「Go系列」Map类型深入学习</h3>
+  <a href="/posts/interviews/go_select/" class="no-underline">
+    <h3 class="mt-0">Go 秋招面试题：请在 select 语句中实现优先级</h3>
   </a>
   
-    Go语言中的Map类型是用来存储键值对的数据结构，例如map[string]int就是用来存储键类型为string值类型为int的键值对。Map底层实
+    Go 语言中的 select 语句可以同时对多个通道的读写的 case 进行监听，当其中一个通道满足读写条件时，select 语句就会执行对应的分支。 从语法形式上看起来和 switch 语句很是
   
 
   
@@ -611,141 +611,184 @@
   <div class="me-6 my-2">
     <i class="fas fa-calendar me-1"></i>
     <span
-      >2022-08-14</span
+      >2024-09-22</span
+    >
+  </div>
+  <div class="me-6 my-2">
+    <i class="fas fa-clock me-1"></i>
+    <span>4分钟阅读时长</span>
+  </div>
+
+  
+
+  
+</div>
+
+  
+</div>
+
+  </div>
+
+  
+</div>
+</div>
+</div>
+
+<div class="mb-6">
+  <div class="bg-secondary-bg rounded border hover:shadow-lg transition ease-in-out duration-200 px-6 pt-6 pb-4">
+  <div class="flex flex-col-reverse lg:flex-row justify-between">
+  
+  <div class="w-full ">
+    <div class="prose">
+  <a href="/posts/golang/go_sched/" class="no-underline">
+    <h3 class="mt-0">「Go系列」面试必会！两张图讲清Go语言并发调度策略</h3>
+  </a>
+  
+    背过面试“八股文”的 Gopher 们肯定了解 Go 语言运行时（Go runtime）的 GMP 模型。Go runtime 时通过 GMP 模型可以完成对 goroutine 的创建、调度、销毁等声明周期的管理，实现 Go 语
+  
+
+  
+    <div
+  class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
+>
+  <div class="me-6 my-2">
+    <i class="fas fa-calendar me-1"></i>
+    <span
+      >2024-05-20</span
+    >
+  </div>
+  <div class="me-6 my-2">
+    <i class="fas fa-clock me-1"></i>
+    <span>6分钟阅读时长</span>
+  </div>
+
+  
+
+  
+</div>
+
+  
+</div>
+
+  </div>
+
+  
+</div>
+</div>
+</div>
+
+<div class="mb-6">
+  <div class="bg-secondary-bg rounded border hover:shadow-lg transition ease-in-out duration-200 px-6 pt-6 pb-4">
+  <div class="flex flex-col-reverse lg:flex-row justify-between">
+  
+  <div class="w-full ">
+    <div class="prose">
+  <a href="/posts/golang/go_resilient/" class="no-underline">
+    <h3 class="mt-0">「Go系列」系统弹力设计之断路器的实现</h3>
+  </a>
+  
+    什么是断路器？ 断路器（circuit-breaker）是软件系统弹力设计中常用的故障保护机制，提高软件系统的容错能力。断路器的工作方式类似于我们生活中
+  
+
+  
+    <div
+  class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
+>
+  <div class="me-6 my-2">
+    <i class="fas fa-calendar me-1"></i>
+    <span
+      >2024-04-02</span
+    >
+  </div>
+  <div class="me-6 my-2">
+    <i class="fas fa-clock me-1"></i>
+    <span>9分钟阅读时长</span>
+  </div>
+
+  
+
+  
+</div>
+
+  
+</div>
+
+  </div>
+
+  
+</div>
+</div>
+</div>
+
+<div class="mb-6">
+  <div class="bg-secondary-bg rounded border hover:shadow-lg transition ease-in-out duration-200 px-6 pt-6 pb-4">
+  <div class="flex flex-col-reverse lg:flex-row justify-between">
+  
+  <div class="w-full ">
+    <div class="prose">
+  <a href="/posts/golang/go_cond/" class="no-underline">
+    <h3 class="mt-0">「Go系列」被遗忘的并发原语——sync.Cond</h3>
+  </a>
+  
+    有其它语言并发编程经验的 Gopher 们一定不会对条件变量（Condition Variable）相关的并发原语感到陌生，例如 Java 的java.utils.concur
+  
+
+  
+    <div
+  class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
+>
+  <div class="me-6 my-2">
+    <i class="fas fa-calendar me-1"></i>
+    <span
+      >2024-03-10</span
+    >
+  </div>
+  <div class="me-6 my-2">
+    <i class="fas fa-clock me-1"></i>
+    <span>9分钟阅读时长</span>
+  </div>
+
+  
+
+  
+</div>
+
+  
+</div>
+
+  </div>
+
+  
+</div>
+</div>
+</div>
+
+<div class="mb-6">
+  <div class="bg-secondary-bg rounded border hover:shadow-lg transition ease-in-out duration-200 px-6 pt-6 pb-4">
+  <div class="flex flex-col-reverse lg:flex-row justify-between">
+  
+  <div class="w-full ">
+    <div class="prose">
+  <a href="/posts/chunwan/" class="no-underline">
+    <h3 class="mt-0">一文揭秘刘谦春晚魔术背后到底发生了什么</h3>
+  </a>
+  
+    刘谦老师在今年央视龙年春晚的魔术表演绝对是是最精彩的节目之一，尤其是第二个魔术，创新性地让现场、电视机前的观众都参与到了魔术表演中，直观感受到了魔术表
+  
+
+  
+    <div
+  class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
+>
+  <div class="me-6 my-2">
+    <i class="fas fa-calendar me-1"></i>
+    <span
+      >2024-02-10</span
     >
   </div>
   <div class="me-6 my-2">
     <i class="fas fa-clock me-1"></i>
     <span>5分钟阅读时长</span>
-  </div>
-
-  
-
-  
-</div>
-
-  
-</div>
-
-  </div>
-
-  
-</div>
-</div>
-</div>
-
-<div class="mb-6">
-  <div class="bg-secondary-bg rounded border hover:shadow-lg transition ease-in-out duration-200 px-6 pt-6 pb-4">
-  <div class="flex flex-col-reverse lg:flex-row justify-between">
-  
-  <div class="w-full ">
-    <div class="prose">
-  <a href="/posts/leetcode/leetcode_8/" class="no-underline">
-    <h3 class="mt-0">「力扣刷题」8.字符串转换整数 (atoi)</h3>
-  </a>
-  
-    这道题是一道考察字符串的中等难度题目，首先来看一下这道题的题干： 这道题如果用库函数做那就是一行代码的事，但是题目显然是不推荐使用库函数的。但尽管不用库
-  
-
-  
-    <div
-  class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
->
-  <div class="me-6 my-2">
-    <i class="fas fa-calendar me-1"></i>
-    <span
-      >2022-08-03</span
-    >
-  </div>
-  <div class="me-6 my-2">
-    <i class="fas fa-clock me-1"></i>
-    <span>4分钟阅读时长</span>
-  </div>
-
-  
-
-  
-</div>
-
-  
-</div>
-
-  </div>
-
-  
-</div>
-</div>
-</div>
-
-<div class="mb-6">
-  <div class="bg-secondary-bg rounded border hover:shadow-lg transition ease-in-out duration-200 px-6 pt-6 pb-4">
-  <div class="flex flex-col-reverse lg:flex-row justify-between">
-  
-  <div class="w-full ">
-    <div class="prose">
-  <a href="/posts/golang/go_interface/" class="no-underline">
-    <h3 class="mt-0">「Go系列」interface是如何实现的？</h3>
-  </a>
-  
-    Go语言提供interface类型作为接口类型，声明interface时候会把其方法定义在一起，任何其他类型只要实现了这些方法就是实现了这个接口。不同
-  
-
-  
-    <div
-  class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
->
-  <div class="me-6 my-2">
-    <i class="fas fa-calendar me-1"></i>
-    <span
-      >2022-07-22</span
-    >
-  </div>
-  <div class="me-6 my-2">
-    <i class="fas fa-clock me-1"></i>
-    <span>4分钟阅读时长</span>
-  </div>
-
-  
-
-  
-</div>
-
-  
-</div>
-
-  </div>
-
-  
-</div>
-</div>
-</div>
-
-<div class="mb-6">
-  <div class="bg-secondary-bg rounded border hover:shadow-lg transition ease-in-out duration-200 px-6 pt-6 pb-4">
-  <div class="flex flex-col-reverse lg:flex-row justify-between">
-  
-  <div class="w-full ">
-    <div class="prose">
-  <a href="/posts/golang/go_type_system/" class="no-underline">
-    <h3 class="mt-0">「Go系列」浅探一下Go语言的类型系统</h3>
-  </a>
-  
-    Go语言是强类型语言，编译器在编译阶段会给代码中每一种类型生成对应的类型描述信息并写入到二进制可执行文件中，这些类型描述信息就被称为“类型元数据”。 G
-  
-
-  
-    <div
-  class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
->
-  <div class="me-6 my-2">
-    <i class="fas fa-calendar me-1"></i>
-    <span
-      >2022-07-08</span
-    >
-  </div>
-  <div class="me-6 my-2">
-    <i class="fas fa-clock me-1"></i>
-    <span>4分钟阅读时长</span>
   </div>
 
   

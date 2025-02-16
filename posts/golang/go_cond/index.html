@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html
+  lang="zh"
+  dir="ltr"
+  
+><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<title>「Go系列」被遗忘的并发原语——sync.Cond | Tom&#39;s Blog</title>
+
+<meta name="generator" content="Hugo Eureka 0.9.3" />
+<link rel="stylesheet" href="/css/eureka.min.9cec6350e37e534b0338fa9a085bf06855de3b0f2dcf857e792e5e97b07ea905d4d5513db554cbc26a9c3da622bae92d.css">
+<script defer src="/js/eureka.min.fa9a6bf6d7a50bb635b4cca7d2ba5cf3dfb095ae3798773f1328f7950028b48c17d06276594e1b5f244a25a6c969a705.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload"
+  href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&amp;family=Noto&#43;Serif&#43;SC:wght@400;600;700&amp;display=swap"
+  as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.4.0/build/styles/base16/solarized-light.min.css"
+   media="print"
+  onload="this.media='all';this.onload=null" crossorigin>
+<script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.4.0/build/highlight.min.js"
+   crossorigin></script>
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.4.0/build/languages/dart.min.js"
+     crossorigin></script>
+<link rel="stylesheet" href="/css/highlightjs.min.2958991528e43eb6fc9b8c4f2b8e052f79c4010718e1d1e888a777620e9ee63021c2c57ec7417a3108019bb8c41943e6.css" media="print" onload="this.media='all';this.onload=null">
+
+
+<script defer type="text/javascript" src="/js/fontawesome.min.2a238597616760e3d50e3d131b417d804ba779c0b2b51638945f9c61b3f666f2b6fcacb11bfe9efe86d4f4e4f44534a7.js"></script>
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"
+   integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ"  media="print"
+  onload="this.media='all';this.onload=null" crossorigin>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js" 
+  integrity="sha384-VQ8d8WVFw0yHhCk5E8I86oOhv48xLpnDZx5T9GogA/Y84DcCKWXDmSDfn13bzFZY"  crossorigin></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js"
+   integrity="sha384-&#43;XBljXPPiv&#43;OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR"  crossorigin></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false },
+        { left: "\\(", right: "\\)", display: false },
+        { left: "\\[", right: "\\]", display: true }
+      ],
+    });
+  });
+</script>
+
+
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@8.14.0/dist/mermaid.min.js" 
+  integrity="sha384-atOyb0FxAgN9LyAc6PEf9BjgwLISyansgdH8/VXQH8p2o5vfrRgmGIJ2Sg22L0A0"  crossorigin></script>
+
+
+<link rel="icon" type="image/png" sizes="32x32" href="/images/icon_hu64421c6c7700f606f0ad45d807017b09_5843_32x32_fill_box_center_3.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/icon_hu64421c6c7700f606f0ad45d807017b09_5843_180x180_fill_box_center_3.png">
+
+<meta name="description"
+  content="有其它语言并发编程经验的 Gopher 们一定不会对条件变量（Condition Variable）相关的并发原语感到陌生，例如 Java 的java.utils.concur">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1 ,
+      "name":"文章",
+      "item":"/posts/"},{
+      "@type": "ListItem",
+      "position": 2 ,
+      "name":"「Go系列」被遗忘的并发原语——sync.Cond",
+      "item":"/posts/golang/go_cond/"}]
+}
+</script>
+
+
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "/posts/golang/go_cond/"
+    },
+    "headline": "「Go系列」被遗忘的并发原语——sync.Cond | Tom\u0027s Blog","datePublished": "2024-03-10T10:00:00+08:00",
+    "dateModified": "2024-03-10T10:00:00+08:00",
+    "wordCount":  4153 ,
+    "publisher": {
+        "@type": "Person",
+        "name": "WANG Chucheng",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "/images/icon.png"
+        }
+        },
+    "description": "有其它语言并发编程经验的 Gopher 们一定不会对条件变量（Condition Variable）相关的并发原语感到陌生，例如 Java 的java.utils.concur"
+}
+</script><meta property="og:title" content="「Go系列」被遗忘的并发原语——sync.Cond | Tom&#39;s Blog" />
+<meta property="og:type" content="article" />
+
+
+<meta property="og:image" content="/images/icon.png">
+
+
+<meta property="og:url" content="/posts/golang/go_cond/" />
+
+
+
+
+<meta property="og:description" content="有其它语言并发编程经验的 Gopher 们一定不会对条件变量（Condition Variable）相关的并发原语感到陌生，例如 Java 的java.utils.concur" />
+
+
+
+
+<meta property="og:locale" content="zh" />
+
+
+
+
+<meta property="og:site_name" content="Tom&#39;s Blog" />
+
+
+
+
+
+
+<meta property="article:published_time" content="2024-03-10T10:00:00&#43;08:00" />
+
+
+<meta property="article:modified_time" content="2024-03-10T10:00:00&#43;08:00" />
+
+
+
+<meta property="article:section" content="posts" />
+
+
+
+
+
+  <body class="flex min-h-screen flex-col">
+    <header
+      class="min-h-16 pl-scrollbar bg-secondary-bg fixed z-50 flex w-full items-center shadow-sm"
+    >
+      <div class="mx-auto w-full max-w-screen-xl"><script>
+    let storageColorScheme = localStorage.getItem("lightDarkMode")
+    if (((storageColorScheme == 'Auto' || storageColorScheme == null) && window.matchMedia("(prefers-color-scheme: dark)").matches) || storageColorScheme == "Dark") {
+        document.getElementsByTagName('html')[0].classList.add('dark')
+    }
+</script>
+<nav class="flex items-center justify-between flex-wrap px-4 py-4 md:py-0">
+    <a href="/" class="me-6 text-primary-text text-xl font-bold">Tom&#39;s Blog</a>
+    <button id="navbar-btn" class="md:hidden flex items-center px-3 py-2" aria-label="Open Navbar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div id="target"
+        class="hidden block md:flex md:grow md:justify-between md:items-center w-full md:w-auto text-primary-text z-20">
+        <div class="md:flex md:h-16 text-sm md:grow pb-4 md:pb-0 border-b md:border-b-0">
+            <a href="/#about" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  border-transparent  me-4">关于我</a>
+            <a href="/posts/" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  selected-menu-item  me-4">文章</a>
+        </div>
+
+        <div class="flex">
+            <div class="relative pt-4 md:pt-0">
+                <div class="cursor-pointer hover:text-eureka" id="lightDarkMode">
+                    <i class="fas fa-adjust"></i>
+                </div>
+                <div class="fixed hidden inset-0 opacity-0 h-full w-full cursor-default z-30" id="is-open">
+                </div>
+                <div class="absolute flex flex-col start-0 md:start-auto end-auto md:end-0 hidden bg-secondary-bg w-48 rounded py-2 border border-tertiary-bg cursor-pointer z-40"
+                    id='lightDarkOptions'>
+                    <span class="px-4 py-1 hover:text-eureka" name="Light">浅色</span>
+                    <span class="px-4 py-1 hover:text-eureka" name="Dark">深色</span>
+                    <span class="px-4 py-1 hover:text-eureka" name="Auto">自动</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed hidden inset-0 opacity-0 h-full w-full cursor-default z-0" id="is-open-mobile">
+    </div>
+
+</nav>
+<script>
+    
+    let element = document.getElementById('lightDarkMode')
+    if (storageColorScheme == null || storageColorScheme == 'Auto') {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.matchMedia("(prefers-color-scheme: dark)").addEventListener('change', switchDarkMode)
+        })
+    } else if (storageColorScheme == "Light") {
+        element.firstElementChild.classList.remove('fa-adjust')
+        element.firstElementChild.setAttribute("data-icon", 'sun')
+        element.firstElementChild.classList.add('fa-sun')
+    } else if (storageColorScheme == "Dark") {
+        element.firstElementChild.classList.remove('fa-adjust')
+        element.firstElementChild.setAttribute("data-icon", 'moon')
+        element.firstElementChild.classList.add('fa-moon')
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        getcolorscheme();
+        switchBurger();
+    });
+</script>
+</div>
+    </header>
+    <main class="grow pt-16">
+        <div class="pl-scrollbar">
+          <div class="mx-auto w-full max-w-screen-xl lg:px-4 xl:px-8">
+  
+  
+  <div class="grid grid-cols-2 gap-4 lg:grid-cols-8 lg:pt-12">
+    <div
+      class="lg:col-start-2 bg-secondary-bg col-span-2 rounded px-6 py-8 lg:col-span-6"
+    >
+      <article class="prose">
+  <h1 class="mb-4">「Go系列」被遗忘的并发原语——sync.Cond</h1>
+
+  <div
+  class="text-tertiary-text not-prose mt-2 flex flex-row flex-wrap items-center"
+>
+  <div class="me-6 my-2">
+    <i class="fas fa-calendar me-1"></i>
+    <span
+      >2024-03-10</span
+    >
+  </div>
+  <div class="me-6 my-2">
+    <i class="fas fa-clock me-1"></i>
+    <span>9分钟阅读时长</span>
+  </div>
+
+  
+
+  
+</div>
+
+
+  
+  
+
+  <p>有其它语言并发编程经验的 Gopher 们一定不会对条件变量（Condition Variable）相关的并发原语感到陌生，例如 Java 的<code>java.utils.concurrent.locks.Condition</code>、C++的<code>std::condition_variable</code>、Python 的<code>threading.Condition</code>等。条件变量在并发编程中用于使一个或多个线程（协程）阻塞地等待一个目标条件被满足，当条件被改变时，可以唤醒一个或多个被阻塞的线程（协程）。</p>
+<p>与上述语言类似，在 Go 语言标准库中同样提供了条件变量的并发原语——<code>sync.Cond</code>，用于阻塞一个或多个等待某个目标条件成立的 goroutine，直到该条件被改变时这一个或多个 goroutine 才被唤醒。然而在实际开发中，<code>sync.Cond</code>很少会被 Gopher 们使用到，因为它的作用似乎都能被 Go channel 给替代，觉得使用 channel 才是更“地道”的 Go 语言用法。但这种说法真的可靠吗？有没有哪些特定场景，<code>sync.Cond</code>是不可替代的呢？</p>
+<h2 id="synccond-的基本使用">sync.Cond 的基本使用</h2>
+<p>使用<code>sync.Cond</code>时需要关联一个“锁”，也就是实现<code>sync.Locker</code>接口的具体类型的实例（例如<code>sync.Mutex</code>、<code>sync.RWMutex</code>等），在<strong>检查或改变目标条件时需要对这把锁进行加锁</strong>。在使用<code>sync.Cond</code>的初始化方法<code>sync.NewCond</code>时，需要传入将锁实例，得到<code>sync.Cond</code>实例，后续通过访问该实例的<code>L</code>字段就可以访问到关联的<code>Locker</code>。以下是<code>sync.NewCond</code>的签名：</p>
+<pre><code class="language-go">func NewCond(l Locker) *Cond
+</code></pre>
+<p><code>sync.Cond</code>有三个方法<code>Wait</code>、<code>Signal</code>和<code>Broadcast</code>：</p>
+<pre><code class="language-go">func (c *Cond) Wait()
+func (c *Cond) Signal()
+func (c *Cond) Broadcast()
+</code></pre>
+<p>下面对这三个方法分别进行介绍：</p>
+<ul>
+<li><code>Wait</code>：会阻塞调用者所在的 goroutine，直到被<code>Signal</code>或<code>Broadcast</code>方法唤醒，<code>Wait</code>才会返回。需要<strong>重点留意</strong>，<code>Wait</code>方法内部会调用<code>c.L.Unlock</code>对该<code>sync.Cond</code>实例关联的锁进行<strong>解锁</strong>，然后再对当前 goroutine 进行阻塞，当该 goroutine 被唤醒后又会在返回前调用<code>c.L.Lock</code>进行<strong>加锁</strong>，因此，<code>Wait</code>的调用者<strong>必须要持有<code>c.L</code>这把锁</strong>；</li>
+<li><code>Signal</code>：唤醒其中一个阻塞等待该<code>sync.Cond</code>实例的 goroutine。该方法调用者<strong>不一定需要持有<code>c.L</code>这把锁</strong>；</li>
+<li><code>Broadcast</code>：作用类似于<code>Signal</code>，不过是唤醒<strong>全部</strong>阻塞等待该<code>sync.Cond</code>实例的 goroutine，当只有一个阻塞等待的 goroutine 时，<code>Broadcast</code>与<code>Signal</code>是等价的。该方法调用者同样<strong>不一定需要持有<code>c.L</code>这把锁</strong>。</li>
+</ul>
+<p>下面我们通过两个例子来感受下<code>sync.Cond</code>的使用。</p>
+<p>第一个例子，我们模拟<strong>一对一</strong>的<code>sync.Cond</code>使用场景：</p>
+<pre><code class="language-go">func main() {
+	cond := sync.NewCond(new(sync.Mutex))
+	ready := false // cond所等待的条件
+
+	go func() {
+		fmt.Println(&quot;doing some work...&quot;)
+		time.Sleep(time.Second)
+		ready = true // 不一定加锁，因为只有一个goroutine在写ready
+		cond.Broadcast()
+	}()
+
+	cond.L.Lock() // 检查目标条件时先加锁
+	for !ready {
+		cond.Wait()
+	}
+	cond.L.Unlock() // Wait返回并跳出for循环后需要解锁
+	fmt.Println(&quot;got work done signal!&quot;)
+}
+
+// OUTPUT:
+// doing some work...
+// got work done signal!
+</code></pre>
+<p>上述代码中，我们启动了一个 goroutine 用于模拟一个任务的执行，然后在主 goroutine 中等待该任务执行的结束。例子中声明布尔变量<code>ready</code>表示该任务是否执行完成，将<code>ready == true</code>作为目标条件。主 goroutine 使用<code>Wait</code>方法阻塞等待目标条件<code>ready == true</code>成立；任务完成执行后，改变<code>ready</code>为<code>true</code>，并使用<code>Broadcast</code>方法通知被阻塞的主 goroutine（由于只有主 goroutine 在阻塞等待，因此<code>Broadcast</code>与<code>Signal</code>是等价的）。这里重点留意主 goroutine 使用<code>sync.Cond</code>进行<code>Wait</code>的方式，尤其是加锁时机——检查目标条件时先加锁，Wait 返回并跳出 for 循环后需要解锁。</p>
+<p>下面我们再来看<strong>一对多</strong>的场景：</p>
+<pre><code class="language-go">func main() {
+	cond := sync.NewCond(new(sync.Mutex))
+	ready := false // cond所等待的条件
+
+ var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		fmt.Println(&quot;doing some work...&quot;)
+		time.Sleep(time.Second)
+		ready = true // 不一定加锁，因为只有一个goroutine在写ready
+		cond.Broadcast() // 通知多个被阻塞的goroutine
+	}()
+
+	wg.Add(5)
+	for range 5 {
+		go func() {
+			defer wg.Done()
+			cond.L.Lock()
+			for !ready {
+				cond.Wait()
+			}
+			cond.L.Unlock()
+			fmt.Println(&quot;got work done signal!&quot;)
+		}()
+	}
+
+	wg.Wait()
+}
+
+// OUTPUT:
+// doing some work...
+// got work done signal!
+// got work done signal!
+// got work done signal!
+// got work done signal!
+// got work done signal!
+</code></pre>
+<p>上述代码与第一个例子的框架基本类似，只不过启动了 5 个 goroutine 同时等待任务执行完成的通知。</p>
+<p>总结两个使用<code>sync.Cond</code>的注意事项，以免使用时踩坑：</p>
+<ul>
+<li>调用<code>Wait</code>前必须加锁：在前文介绍<code>Wait</code>方法时有提到过<code>Wait</code>内部会首先对关联的锁进行解锁，一般锁的实现不允许对没有加锁的锁进行解锁，比如在上文的例子中<code>sync.Cond</code>关联了标准库<code>sync.Mutex</code>互斥锁，若在调用<code>Wait</code>前没有加锁，则会触发 panic：<code>fatal error: sync: unlock of unlocked mutex</code>。在 Go 语言圈中有个口诀：“等待毕加索”（<code>Wait</code>必须加锁，谐音梗退钱！），可以帮助我们记住这一注意点。</li>
+<li><code>Wait</code>唤醒后需要检查目标条件：<code>sync.Cond</code>本身只是负责阻塞与唤醒一个或多个 goroutine，并不能保证目标条件一定是满足了的，且当前 goroutine 从<code>Wait</code>被唤醒到<code>Wait</code>返回之间，当前 goroutine 是没有获得锁的，因此条件可能会被改变。综上，官方推荐我们使用 for 循环的框架去调用<code>Wait</code>等待目标条件的成立：</li>
+</ul>
+<pre><code class="language-go">c.L.Lock()
+for !condition {
+    c.Wait()
+}
+// make use of condition...
+c.L.Unlock()
+</code></pre>
+<h2 id="synccond-vs-channel">sync.Cond vs channel</h2>
+<p>Gopher 们看完上一节中的两个例子肯定会觉得<code>sync.Cond</code>完全可以被 Go 原生的 channel 类型代替，两个示例场景中我们都可以使用<code>close</code>关闭 channel 的方式去通知所有阻塞等待的 goroutine，以一对多的场景为例：</p>
+<pre><code class="language-go">func main() {
+	var wg sync.WaitGroup
+	ready := make(chan struct{})
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		fmt.Println(&quot;doing some work...&quot;)
+		time.Sleep(time.Second)
+		close(ready)
+	}()
+
+	wg.Add(5)
+	for range 5 {
+		go func() {
+			defer wg.Done()
+			&lt;-ready
+			fmt.Println(&quot;got work done signal!&quot;)
+		}()
+	}
+
+	wg.Wait()
+}
+
+// OUTPUT:
+// doing some work...
+// got work done signal!
+// got work done signal!
+// got work done signal!
+// got work done signal!
+// got work done signal!
+</code></pre>
+<p>对于一对一的场景，也可以不使用<code>close</code>，直接读写无缓冲 channel <code>ready</code>，实现同步关系：</p>
+<pre><code class="language-go">func main() {
+	ready := make(chan struct{})
+
+	go func() {
+		fmt.Println(&quot;doing some work...&quot;)
+		time.Sleep(time.Second)
+		close(ready)
+	}()
+
+	&lt;-ready
+	fmt.Println(&quot;got work done signal!&quot;)
+}
+
+// OUTPUT:
+// doing some work...
+// got work done signal!
+</code></pre>
+<p>对于这两种通知被阻塞 goroutine 的场景，的确用 channel 更简洁高效，且更符合 Go 语言的编写习惯。但是对于一对多的例子，如果我们需要多次进行 goroutine 的阻塞与唤醒，channel 就显得捉襟见肘了——因为一个 channel 只能被<code>close</code>关闭一次重复<code>close</code>一个 channel 会导致 panic。比如在下面的例子中，进行了 3 次 goroutine 的阻塞与唤醒（这里只是展示<code>sync.Cond</code>的多次阻塞与唤醒，为了方便理解所以没有加入<code>ready</code>目标条件）：</p>
+<pre><code class="language-go">func main() {
+	var wg sync.WaitGroup
+	cond := sync.NewCond(new(sync.Mutex))
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := range 3 {
+			fmt.Printf(&quot;doing work %d...\n&quot;, i)
+			time.Sleep(time.Second)
+			cond.Broadcast()
+		}
+	}()
+
+	wg.Add(5)
+	for range 5 {
+		go func() {
+			defer wg.Done()
+			for i := range 3 {
+				cond.L.Lock()
+				cond.Wait()
+				cond.L.Unlock()
+				fmt.Println(&quot;got work done signal!&quot;, i)
+			}
+		}()
+	}
+
+	wg.Wait()
+}
+
+// OUTPUT：
+// doing work 0...
+// doing work 1...
+// got work done signal! 0
+// got work done signal! 0
+// got work done signal! 0
+// got work done signal! 0
+// got work done signal! 0
+// doing work 2...
+// got work done signal! 1
+// got work done signal! 1
+// got work done signal! 1
+// got work done signal! 1
+// got work done signal! 1
+// got work done signal! 2
+// got work done signal! 2
+// got work done signal! 2
+// got work done signal! 2
+// got work done signal! 2
+</code></pre>
+<p>总结<code>sync.Cond</code>相比 channel 的一大不可替代的点就是：<strong>有多个被阻塞 goroutine 的场景中，<code>Broadcast</code>方法可以多次调用，以多次唤醒被阻塞的全部 goroutine</strong>。</p>
+<p>但如果在这里我们非要使用 channel 的话也不是不可以，就是要比使用<code>sync.Cond</code>繁杂一些。我们需要给每个阻塞的 goroutine 关联一个 channel，用于其阻塞与唤醒。然后单独实现一个<code>broadcast</code>函数，用于将元素<code>v</code>传给多个 channel：</p>
+<pre><code class="language-go">func broadcast[T any](v T, outs []chan T) {
+	for _, out := range outs {
+		out &lt;- v
+	}
+}
+</code></pre>
+<p>然后我们使用<code>broadcast</code>进行多次阻塞与唤醒：</p>
+<pre><code class="language-go">func main() {
+	outs := make([]chan struct{}, 5)
+	for i := range outs {
+		outs[i] = make(chan struct{})
+	}
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := range 3 {
+			_, _ = fmt.Printf(&quot;doing work %d...\n&quot;, i)
+			time.Sleep(time.Second)
+			broadcast(struct{}{}, outs)
+		}
+	}()
+
+	wg.Add(5)
+	for i := range 5 {
+		go func(c &lt;-chan struct{}) {
+			defer wg.Done()
+			for j := range 3 {
+				&lt;-c
+				fmt.Println(&quot;got work done signal!&quot;, j)
+			}
+		}(outs[i])
+	}
+
+	wg.Wait()
+}
+
+// OUTPUT：
+// doing work 0...
+// doing work 1...
+// got work done signal! 0
+// got work done signal! 0
+// got work done signal! 0
+// got work done signal! 0
+// got work done signal! 0
+// doing work 2...
+// got work done signal! 1
+// got work done signal! 1
+// got work done signal! 1
+// got work done signal! 1
+// got work done signal! 1
+// got work done signal! 2
+// got work done signal! 2
+// got work done signal! 2
+// got work done signal! 2
+// got work done signal! 2
+</code></pre>
+<h2 id="synccond-源码浅析">sync.Cond 源码浅析</h2>
+<p>我们先来看一下<code>sync.Cond</code>结构体的字段：</p>
+<pre><code class="language-go">type Cond struct {
+	noCopy noCopy
+
+	// 在检查目标条件或者修改条件时需要持有的锁
+	L Locker
+
+	notify  notifyList
+	checker copyChecker
+}
+</code></pre>
+<p>对外暴露的锁<code>L</code>在前文中已经解释过了，是在检查目标条件或者修改条件时需要持有的锁；<code>noCopy</code>和<code>checker</code>是用于检测<code>sync.Cond</code>实例是否有被复制的，关于复制检测的详细讲解可以参考之前的文章——<a href="https://mp.weixin.qq.com/s/c9tDVoNt3dzI-FY1c6QsfA" title="Golang 代码运行时类型复制检查器 copyChecker 的实现">《Golang 代码运行时类型复制检查器 copyChecker 的实现》</a>；<code>notify</code>是一个 goroutine 的阻塞等待队列，其底层是由<code>runtime.notifyList</code>实现的。</p>
+<p><code>sync.Cond</code>的三个方法实现很简单，因为主要的复杂逻辑已经被 Go 语言运行时的<code>runtime.notifyList</code>实现了。由于篇幅的原因这里不对<code>runtime.notifyList</code>相关的逻辑进行详细讲解，其源码位于<a href="https://cs.opensource.google/go/go/+/refs/tags/go1.22.0:src/runtime/sema.go" title="runtime/sema.go">runtime/sema.go</a>中，<strong>在今后会计划写一篇对其进行详细讲解的文章，敬请期待</strong>！</p>
+<h3 id="wait">Wait</h3>
+<pre><code class="language-go">func (c *Cond) Wait() {
+	c.checker.check()
+	t := runtime_notifyListAdd(&amp;c.notify) // 加入通知列表
+	c.L.Unlock()
+	runtime_notifyListWait(&amp;c.notify, t) // 决定是否加入阻塞等待队列
+	c.L.Lock() // 从阻塞队列唤醒后再次加锁
+}
+</code></pre>
+<p>可以看到<code>Wait</code>会调用<code>c.L.Unlock</code>对该<code>sync.Cond</code>实例关联的锁进行解锁，因此调用<code>Wait</code>前必须加锁；在<code>Wait</code>返回前又会调用<code>c.L.Unlock</code>对该<code>sync.Cond</code>实例关联的锁进行加锁，因此<code>Wait</code>返回后还需要解锁，避免出现<strong>死锁</strong>的情况。</p>
+<p>忽略复制检查和加锁/解锁的代码，那么<code>Wait</code>所做的就是使用<code>runtime_notifyListAdd</code>将调用者所在 goroutine 加入通知列表中，但还需要调用<code>runtime_notifyListWait</code>才可以真正决定当前 goroutine 是否需要加入到阻塞等待队列中。</p>
+<p>由于调用<code>runtime_notifyListWait</code>可能会阻塞当前 goroutine，因此在调用该方法前需要释放锁，这样其它 goroutine 才能够获得锁。</p>
+<h3 id="signal-与-broadcast">Signal 与 Broadcast</h3>
+<pre><code class="language-go">func (c *Cond) Signal() {
+	c.checker.check()
+	runtime_notifyListNotifyOne(&amp;c.notify) // 通知一个等待的goroutine
+}
+
+func (c *Cond) Broadcast() {
+	c.checker.check()
+	runtime_notifyListNotifyAll(&amp;c.notify) // 通知所有等待的goroutine
+}
+</code></pre>
+<p>同样忽略复制检查的代码，<code>Signal</code>调用<code>runtime_notifyListNotifyOne</code>通知一个等待的 goroutine，如果该 goroutine 存在于阻塞等待队列中，那么将其移除队列并唤醒；<code>Broadcast</code>调用<code>runtime_notifyListNotifyAll</code>通知所有等待的 goroutine，清空并唤醒阻塞等待队列中所有的 goroutine。</p>
+<h2 id="总结">总结</h2>
+<p>本文介绍了 Go 语言标准库提供的条件变量并发原语<code>sync.Cond</code>的一般使用方法，并对比其与 Go 原生的 channel 在不同场景时的优劣。然后我们浅析了<code>sync.Cond</code>的源码实现，有助于我们对<code>sync.Cond</code>使用方式的理解。</p>
+
+</article>
+
+
+      
+
+      
+
+
+
+      
+
+      
+  <div
+    class="-mx-2 mt-4 flex flex-col border-t px-2 pt-4 md:flex-row md:justify-between"
+  >
+    <div>
+      
+        <span class="text-primary-text block font-bold"
+          >上一页</span
+        >
+        <a href="/posts/golang/go_resilient/" class="block">「Go系列」系统弹力设计之断路器的实现</a>
+      
+    </div>
+    <div class="mt-4 md:mt-0 md:text-right">
+      
+        <span class="text-primary-text block font-bold">下一页</span>
+        <a href="/posts/chunwan/" class="block">一文揭秘刘谦春晚魔术背后到底发生了什么</a>
+      
+    </div>
+  </div>
+
+
+      
+
+
+
+    </div>
+    
+
+    
+    
+  </div>
+
+  
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        hljs.highlightAll();
+      });
+    </script>
+
+          </div>
+        </div>
+      
+    </main>
+    <footer class="pl-scrollbar">
+      <div class="mx-auto w-full max-w-screen-xl"><div class="text-center p-6 pin-b">
+    <p class="text-sm text-tertiary-text">&copy; 2021 <a href="https://www.wangchucheng.com/">WANG Chucheng</a> and <a href="https://www.ruiqima.com/">MA Ruiqi</a>
+ &middot;  Powered by the <a href="https://github.com/wangchucheng/hugo-eureka" class="hover:text-eureka">Eureka</a> theme for <a href="https://gohugo.io" class="hover:text-eureka">Hugo</a></p>
+</div></div>
+    </footer>
+  </body>
+</html>

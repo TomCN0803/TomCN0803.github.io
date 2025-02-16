@@ -8,11 +8,101 @@
     <language>zh</language>
     <copyright>&amp;copy; 2021 &lt;a href=&#34;https://www.wangchucheng.com/&#34;&gt;WANG Chucheng&lt;/a&gt; and &lt;a href=&#34;https://www.ruiqima.com/&#34;&gt;MA Ruiqi&lt;/a&gt;
 </copyright>
-    <lastBuildDate>Sun, 14 Aug 2022 19:13:05 +0800</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 22 Sep 2024 12:00:00 +0800</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Go 秋招面试题：请在 select 语句中实现优先级</title>
+      <link>/posts/interviews/go_select/</link>
+      <pubDate>Sun, 22 Sep 2024 12:00:00 +0800</pubDate>
+      
+      <guid>/posts/interviews/go_select/</guid>
+      <description>Go 语言中的 select 语句可以同时对多个通道的读写的 case 进行监听，当其中一个通道满足读写条件时，select 语句就会执行对应的分支。 从语法形式上看起来和 switch 语句很是</description>
+    </item>
+    
+    <item>
+      <title>「Go系列」面试必会！两张图讲清Go语言并发调度策略</title>
+      <link>/posts/golang/go_sched/</link>
+      <pubDate>Mon, 20 May 2024 20:13:00 +0800</pubDate>
+      
+      <guid>/posts/golang/go_sched/</guid>
+      <description>背过面试“八股文”的 Gopher 们肯定了解 Go 语言运行时（Go runtime）的 GMP 模型。Go runtime 时通过 GMP 模型可以完成对 goroutine 的创建、调度、销毁等声明周期的管理，实现 Go 语</description>
+    </item>
+    
+    <item>
+      <title>「Go系列」系统弹力设计之断路器的实现</title>
+      <link>/posts/golang/go_resilient/</link>
+      <pubDate>Tue, 02 Apr 2024 10:00:00 +0800</pubDate>
+      
+      <guid>/posts/golang/go_resilient/</guid>
+      <description>什么是断路器？ 断路器（circuit-breaker）是软件系统弹力设计中常用的故障保护机制，提高软件系统的容错能力。断路器的工作方式类似于我们生活中</description>
+    </item>
+    
+    <item>
+      <title>「Go系列」被遗忘的并发原语——sync.Cond</title>
+      <link>/posts/golang/go_cond/</link>
+      <pubDate>Sun, 10 Mar 2024 10:00:00 +0800</pubDate>
+      
+      <guid>/posts/golang/go_cond/</guid>
+      <description>有其它语言并发编程经验的 Gopher 们一定不会对条件变量（Condition Variable）相关的并发原语感到陌生，例如 Java 的java.utils.concur</description>
+    </item>
+    
+    <item>
+      <title>一文揭秘刘谦春晚魔术背后到底发生了什么</title>
+      <link>/posts/chunwan/</link>
+      <pubDate>Sat, 10 Feb 2024 12:00:00 +0800</pubDate>
+      
+      <guid>/posts/chunwan/</guid>
+      <description>刘谦老师在今年央视龙年春晚的魔术表演绝对是是最精彩的节目之一，尤其是第二个魔术，创新性地让现场、电视机前的观众都参与到了魔术表演中，直观感受到了魔术表</description>
+    </item>
+    
+    <item>
+      <title>「Go系列」扩展并发原语之errgroup.Group的实战与源码解读</title>
+      <link>/posts/golang/go_errgroup/</link>
+      <pubDate>Sun, 17 Dec 2023 20:00:00 +0800</pubDate>
+      
+      <guid>/posts/golang/go_errgroup/</guid>
+      <description>Go 语言是如今高并发服务的首选编程语言之一，其自带的go关键字、channel 类型以及标准库sync和sync/atomic中较为丰富的并发原语，使得 Gopher</description>
+    </item>
+    
+    <item>
+      <title>「Go系列」如何让Go同步原语sync.Once变得更好用？</title>
+      <link>/posts/golang/go_once/</link>
+      <pubDate>Tue, 03 Oct 2023 20:00:00 +0800</pubDate>
+      
+      <guid>/posts/golang/go_once/</guid>
+      <description>sync.Once是 Go 语言在标准库中所提供的一个同步原语，其早在 Go 的首个稳定版本go1中就存在于标准库sync包内了。sync.Once所提供的Do方</description>
+    </item>
+    
+    <item>
+      <title>「Go系列」代码运行时类型复制检查器copyChecker的实现</title>
+      <link>/posts/golang/go_copycheck/</link>
+      <pubDate>Fri, 22 Sep 2023 20:13:00 +0800</pubDate>
+      
+      <guid>/posts/golang/go_copycheck/</guid>
+      <description>今天在翻看 Golang sync 包源码时发现了一个以前从来没有仔细看过的代码实现——代码运行时类型复制检查器copyCheker，它的作用是可以在 Go 代码运行时，检测一个</description>
+    </item>
+    
+    <item>
+      <title>「Go系列」漏洞管理体系以及 govulncheck 漏洞检测工具介绍</title>
+      <link>/posts/golang/go_vuln/</link>
+      <pubDate>Sat, 08 Jul 2023 10:30:06 +0800</pubDate>
+      
+      <guid>/posts/golang/go_vuln/</guid>
+      <description>体系概览 Golang官方提供了一套比较完整的漏洞管理体系，可以帮助开发人员检测、评估和解决可能被攻击者利用的错误和漏洞。该体系的底层架构主要分为如图所</description>
+    </item>
+    
+    <item>
+      <title>带你掌握 Protobuf 中 Varint 原理以及代码实现</title>
+      <link>/posts/proto_varint/</link>
+      <pubDate>Wed, 12 Apr 2023 20:20:05 +0800</pubDate>
+      
+      <guid>/posts/proto_varint/</guid>
+      <description>Varint简介 在我们使用gRPC框架进行服务间通信时，我们需要protobuf来定义服务接口和消息格式。 在进行整数类型数据的传输时，除了定长的fix</description>
+    </item>
+    
     <item>
       <title>「Go系列」Map类型深入学习</title>
       <link>/posts/golang/go_map/</link>
-      <pubDate>Sun, 14 Aug 2022 19:13:05 +0800</pubDate>
+      <pubDate>Mon, 14 Nov 2022 19:13:05 +0800</pubDate>
       
       <guid>/posts/golang/go_map/</guid>
       <description>Go语言中的Map类型是用来存储键值对的数据结构，例如map[string]int就是用来存储键类型为string值类型为int的键值对。Map底层实</description>

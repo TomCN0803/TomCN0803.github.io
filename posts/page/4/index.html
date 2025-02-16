@@ -87,21 +87,21 @@
     "itemListElement":[{
             "@type":"ListItem",
             "position":  1 ,
-            "name": "「Go系列」如何让Go同步原语sync.Once变得更好用？",
-            "description": "sync.Once是 Go 语言在标准库中所提供的一个同步原语，其早在 Go 的首个稳定版本go1中就存在于标准库sync包内了。sync.Once所提供的Do方",
-            "url": "/posts/golang/go_once/"
+            "name": "带你掌握 Protobuf 中 Varint 原理以及代码实现",
+            "description": "Varint简介 在我们使用gRPC框架进行服务间通信时，我们需要protobuf来定义服务接口和消息格式。 在进行整数类型数据的传输时，除了定长的fix",
+            "url": "/posts/proto_varint/"
         },{
             "@type":"ListItem",
             "position":  2 ,
-            "name": "「Go系列」代码运行时类型复制检查器copyChecker的实现",
-            "description": "今天在翻看 Golang sync 包源码时发现了一个以前从来没有仔细看过的代码实现——代码运行时类型复制检查器copyCheker，它的作用是可以在 Go 代码运行时，检测一个",
-            "url": "/posts/golang/go_copycheck/"
+            "name": "「Go系列」Map类型深入学习",
+            "description": "Go语言中的Map类型是用来存储键值对的数据结构，例如map[string]int就是用来存储键类型为string值类型为int的键值对。Map底层实",
+            "url": "/posts/golang/go_map/"
         },{
             "@type":"ListItem",
             "position":  3 ,
-            "name": "「Go系列」漏洞管理体系以及 govulncheck 漏洞检测工具介绍",
-            "description": "体系概览 Golang官方提供了一套比较完整的漏洞管理体系，可以帮助开发人员检测、评估和解决可能被攻击者利用的错误和漏洞。该体系的底层架构主要分为如图所",
-            "url": "/posts/golang/go_vuln/"
+            "name": "「力扣刷题」8.字符串转换整数 (atoi)",
+            "description": "这道题是一道考察字符串的中等难度题目，首先来看一下这道题的题干： 这道题如果用库函数做那就是一行代码的事，但是题目显然是不推荐使用库函数的。但尽管不用库",
+            "url": "/posts/leetcode/leetcode_8/"
         }
     ]
 }
@@ -230,11 +230,11 @@
   
   <div class="w-full ">
     <div class="prose">
-  <a href="/posts/golang/go_once/" class="no-underline">
-    <h3 class="mt-0">「Go系列」如何让Go同步原语sync.Once变得更好用？</h3>
+  <a href="/posts/proto_varint/" class="no-underline">
+    <h3 class="mt-0">带你掌握 Protobuf 中 Varint 原理以及代码实现</h3>
   </a>
   
-    sync.Once是 Go 语言在标准库中所提供的一个同步原语，其早在 Go 的首个稳定版本go1中就存在于标准库sync包内了。sync.Once所提供的Do方
+    Varint简介 在我们使用gRPC框架进行服务间通信时，我们需要protobuf来定义服务接口和消息格式。 在进行整数类型数据的传输时，除了定长的fix
   
 
   
@@ -244,12 +244,12 @@
   <div class="me-6 my-2">
     <i class="fas fa-calendar me-1"></i>
     <span
-      >2023-10-03</span
+      >2023-04-12</span
     >
   </div>
   <div class="me-6 my-2">
     <i class="fas fa-clock me-1"></i>
-    <span>10分钟阅读时长</span>
+    <span>19分钟阅读时长</span>
   </div>
 
   
@@ -271,11 +271,11 @@
   
   <div class="w-full ">
     <div class="prose">
-  <a href="/posts/golang/go_copycheck/" class="no-underline">
-    <h3 class="mt-0">「Go系列」代码运行时类型复制检查器copyChecker的实现</h3>
+  <a href="/posts/golang/go_map/" class="no-underline">
+    <h3 class="mt-0">「Go系列」Map类型深入学习</h3>
   </a>
   
-    今天在翻看 Golang sync 包源码时发现了一个以前从来没有仔细看过的代码实现——代码运行时类型复制检查器copyCheker，它的作用是可以在 Go 代码运行时，检测一个
+    Go语言中的Map类型是用来存储键值对的数据结构，例如map[string]int就是用来存储键类型为string值类型为int的键值对。Map底层实
   
 
   
@@ -285,12 +285,12 @@
   <div class="me-6 my-2">
     <i class="fas fa-calendar me-1"></i>
     <span
-      >2023-09-22</span
+      >2022-11-14</span
     >
   </div>
   <div class="me-6 my-2">
     <i class="fas fa-clock me-1"></i>
-    <span>6分钟阅读时长</span>
+    <span>5分钟阅读时长</span>
   </div>
 
   
@@ -312,11 +312,11 @@
   
   <div class="w-full ">
     <div class="prose">
-  <a href="/posts/golang/go_vuln/" class="no-underline">
-    <h3 class="mt-0">「Go系列」漏洞管理体系以及 govulncheck 漏洞检测工具介绍</h3>
+  <a href="/posts/leetcode/leetcode_8/" class="no-underline">
+    <h3 class="mt-0">「力扣刷题」8.字符串转换整数 (atoi)</h3>
   </a>
   
-    体系概览 Golang官方提供了一套比较完整的漏洞管理体系，可以帮助开发人员检测、评估和解决可能被攻击者利用的错误和漏洞。该体系的底层架构主要分为如图所
+    这道题是一道考察字符串的中等难度题目，首先来看一下这道题的题干： 这道题如果用库函数做那就是一行代码的事，但是题目显然是不推荐使用库函数的。但尽管不用库
   
 
   
@@ -326,7 +326,7 @@
   <div class="me-6 my-2">
     <i class="fas fa-calendar me-1"></i>
     <span
-      >2023-07-08</span
+      >2022-08-03</span
     >
   </div>
   <div class="me-6 my-2">
@@ -358,7 +358,7 @@
         <a href="/posts/" aria-label="First" class="page-link" role="button"><span aria-hidden="true">&laquo;&laquo;</span></a>
       </li>
       <li class="page-item">
-        <a href="/posts/page/2/" aria-label="Previous" class="page-link" role="button"><span aria-hidden="true">&laquo;</span></a>
+        <a href="/posts/page/3/" aria-label="Previous" class="page-link" role="button"><span aria-hidden="true">&laquo;</span></a>
       </li>
       <li class="page-item">
         <a href="/posts/" aria-label="Page 1" class="page-link" role="button">1</a>
@@ -366,17 +366,17 @@
       <li class="page-item">
         <a href="/posts/page/2/" aria-label="Page 2" class="page-link" role="button">2</a>
       </li>
-      <li class="page-item active">
-        <a aria-current="page" aria-label="Page 3" class="page-link" role="button">3</a>
-      </li>
       <li class="page-item">
-        <a href="/posts/page/4/" aria-label="Page 4" class="page-link" role="button">4</a>
+        <a href="/posts/page/3/" aria-label="Page 3" class="page-link" role="button">3</a>
+      </li>
+      <li class="page-item active">
+        <a aria-current="page" aria-label="Page 4" class="page-link" role="button">4</a>
       </li>
       <li class="page-item">
         <a href="/posts/page/5/" aria-label="Page 5" class="page-link" role="button">5</a>
       </li>
       <li class="page-item">
-        <a href="/posts/page/4/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
+        <a href="/posts/page/5/" aria-label="Next" class="page-link" role="button"><span aria-hidden="true">&raquo;</span></a>
       </li>
       <li class="page-item">
         <a href="/posts/page/5/" aria-label="Last" class="page-link" role="button"><span aria-hidden="true">&raquo;&raquo;</span></a>
